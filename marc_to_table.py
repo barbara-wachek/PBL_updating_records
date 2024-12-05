@@ -17,12 +17,15 @@ def year(row, field):
 
 #%% new approach
     
-#mrc to mrk 
-path = 'D:/IBL/BN/bn_all/2023-07-20/'
+#Change format: mrc to mrk 
+
+path = "C:\\Users\\Barbara Wachek\\Documents\\Python Scripts\\PBL_updating_records\\data\\2024-12-05\\"
 files = [f for f in glob.glob(path + '*.mrc', recursive=True)]
 for file_path in tqdm(files):
     path_mrk = file_path.replace('.mrc', '.mrk')
     mrc_to_mrk(file_path, path_mrk)
+
+#%%
 
 path = 'F:/Cezary/Documents/IBL/Migracja z BN/bn_all/2021-02-08/'
 path = 'F:/Cezary/Documents/IBL/Translations/Czech database/nkc_SKC_2021-08-05'
