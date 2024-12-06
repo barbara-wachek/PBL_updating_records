@@ -461,7 +461,7 @@ if bn_books_marc_total['009'].dtype == np.float64:
 bn_books_marc_total['995'] = '\\\\$aPBL 2013-2023: książki'
 
 #Porównanie z ostatnio wygenerowym plikiem bn_books_marc z 2021 roku (aby odsiać duplikaty) folder ELB w Computations
-bn_books_marc_old = pd.read_excel(r"C:\Users\Barbara Wachek\Documents\Python Scripts\PBL_updating_records\data\old_imports\bn_books_marc_OLD.xlsx", sheet_name='Sheet1')
+bn_books_marc_old = pd.read_excel(r"C:\Users\Barbara Wachek\Documents\Python Scripts\PBL_updating_records\data\old_imports\bn_books_marc_2021-07-01.xlsx", sheet_name='Sheet1')
 #Stworzenie list z ID z obu df: starego i nowego:
 list_bn_books_marc_old_ID = set(bn_books_marc_old['001'].dropna().tolist())
 list_bn_books_marc_total_ID = set(bn_books_marc_total['001'].dropna().tolist())
@@ -472,6 +472,8 @@ list_new_records_only_ID = list(list_bn_books_marc_total_ID - list_bn_books_marc
 
 bn_books_marc_final = bn_books_marc_total[bn_books_marc_total['001'].isin(list_new_records_only_ID)]
 bn_books_marc_final.drop_duplicates
+
+# len(set(bn_books_marc_final['001']))
 
 #%% Zapisanie do xlsx i mrc i przekształcenie mrc na mrk
 
@@ -495,7 +497,6 @@ if errors:
             df2['009'] = df2['009'].astype(np.int64)
     df_to_mrc(df2, '❦', f'data/libri_marc_bn_books2_{year}-{month}-{day}.mrc', f'data/libri_marc_bn_books2_errors_{year}-{month}-{day}.txt')
     mrc_to_mrk(f'data/libri_marc_bn_books2_{year}-{month}-{day}.mrc', f'data/libri_marc_bn_books2_{year}-{month}-{day}.mrk')
-
 
 
 

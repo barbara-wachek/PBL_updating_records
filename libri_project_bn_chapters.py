@@ -36,7 +36,9 @@ gauth.LocalWebserverAuth()
 drive = GoogleDrive(gauth)
 
 #%% pobranie pliku z relacjami
-newest_relations = input('Provide google sheet id for the newest relations: ') #newest: 1KjoDr10JeKF_BMLHzKhmguwrhyJ1k_tnlUl1-q4A9No
+newest_relations = '1KjoDr10JeKF_BMLHzKhmguwrhyJ1k_tnlUl1-q4A9No' #PODMIENIC ID Arkusza, który będzie z kroku 1 (linia 131-638)
+
+input('Provide google sheet id for the newest relations: ') #newest: 1KjoDr10JeKF_BMLHzKhmguwrhyJ1k_tnlUl1-q4A9No
 chapters_relations_sheet = gc.open_by_key(newest_relations)
 chapters_relations_df = get_as_dataframe(chapters_relations_sheet.worksheet('relations'), evaluate_formulas=True).dropna(how='all').dropna(how='all', axis=1)
 chapters = chapters_relations_df[chapters_relations_df['type'] == 'chapter']
