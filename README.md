@@ -12,3 +12,5 @@ Tools (menu na pasku u góry) → MARC Processing Tools → MARCSplit → podzie
 1. books - libri_project_bn_books.py
 2. articles - libri_project_bn_articles.py
 3. chapters - libri_project_bn_chapters.py
+
+####Na końcu wygenerowane pliki dodać do folderu Computations/ELB/aktualizacja danych w folderze z datą dzisiejszą. 

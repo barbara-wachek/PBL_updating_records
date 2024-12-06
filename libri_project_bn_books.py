@@ -1,7 +1,7 @@
 import pandas as pd
 import io
 import sys
-sys.path.insert(1, 'C:/Users/Cezary/Documents/IBL-PAN-Python')
+# sys.path.insert(1, 'C:/Users/Cezary/Documents/IBL-PAN-Python')
 from google_drive_research_folders import PBL_folder
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -32,7 +32,7 @@ def uproszczenie_nazw(x):
     
 def bn_harvesting(start_year, end_year, path, encoding, bibliographic_kind, condition_list, filtering_method):
     years = range(start_year, end_year+1)
-    # path = r"D:\IBL\BN\bn_all\2023-01-23/"
+    # path = "C:\\Users\\Barbara Wachek\\Documents\\Python Scripts\\PBL_updating_records\\data\\2024-12-05\\"
     encoding = 'utf-8'
     files = [file for file in glob.glob(path + '*.mrk', recursive=True)]
     new_list = []
@@ -206,7 +206,7 @@ starting_year = 2013
 ending_year = 2024
 
 #%% path to the newest BN dump
-path = r"D:\IBL\BN\bn_all\2023-07-20/"
+path = "C:\\Users\\Barbara Wachek\\Documents\\Python Scripts\\PBL_updating_records\\data\\2024-12-05\\"
 
 #%% deskryptory BN do wydobycia rekordów
 bn_deskryptory1 = gsheet_to_df('1b_DWfaMsi_10xKR8fg-0Qpzvm91p6gx3lwjgSy0zI1Q', 'deskryptory_do_filtrowania')
@@ -274,7 +274,9 @@ dydaktyka_655 = list(set([re.sub('\$y.*', '', e[4:]).replace('$2DBN', '') for su
 #%% BN relacje
 bn_relations = gsheet_to_df('1WPhir3CwlYre7pw4e76rEnJq5DPvVZs3_828c_Mqh9c', 'relacje_rev_book').rename(columns={'id':'001'})
 bn_relations = bn_relations[bn_relations['typ'] == 'book'].rename(columns={'id':'001'})
-newest_relations = input('Provide google sheet id for the newest relations: ') #newest: 1KjoDr10JeKF_BMLHzKhmguwrhyJ1k_tnlUl1-q4A9No
+# newest_relations = input('Provide google sheet id for the newest relations: ') #newest: 1KjoDr10JeKF_BMLHzKhmguwrhyJ1k_tnlUl1-q4A9No
+newest_relations = '1KjoDr10JeKF_BMLHzKhmguwrhyJ1k_tnlUl1-q4A9No'
+
 bn_books_chapters = gsheet_to_df(newest_relations, 'relations')
 bn_books_chapters = bn_books_chapters[bn_books_chapters['type'] == 'book'].rename(columns={'id':'001'})
 
@@ -284,7 +286,7 @@ bn_relations = pd.concat([bn_relations, bn_books_chapters]).rename(columns={856:
 bn_relations['856'] = bn_relations.groupby('001')['856'].transform(lambda x: '❦'.join(x.drop_duplicates().astype(str)))
 bn_relations = bn_relations.drop_duplicates().reset_index(drop=True)
 
-#%% harvesting BN
+#%% harvesting BN files
             
 bn_harvesting_list = bn_harvesting(starting_year, ending_year, path, 'utf8', 'm', bn_deskryptory, filtering_method='deskryptory')
 bn_harvested_df = bn_harvested_list_to_df(bn_harvesting_list)
@@ -389,7 +391,7 @@ dobre4_df = dobre4_df[(dobre4_df['380'].str.lower().str.contains('książ|book',
 bn_harvesting_list = bn_harvesting(starting_year, ending_year, path, 'utf8', 'm', (dydaktyka_650, dydaktyka_655), filtering_method='dydaktyka')
 dobre5_df = bn_harvested_list_to_df(bn_harvesting_list)
 
-#%% wydobycie książek rozdziałów
+#%% wydobycie książek rozdziałów - mieli ponad godzinę
 
 bn_harvesting_list = bn_harvesting(starting_year, ending_year, path, 'utf8', 'm', books_id, filtering_method='książki rozdziałów')
 dobre6_df = bn_harvested_list_to_df(bn_harvesting_list)
@@ -427,7 +429,7 @@ ids = list(set(ids))
 
 bn_harvested = bn_harvested[~bn_harvested['001'].isin(ids)]
 
-# bn_harvested.to_excel(f'bn_harvested_{year}_{month}_{day}.xlsx', index=False)
+# bn_harvested.to_excel(f'data/bn_harvested_{year}_{month}_{day}.xlsx', index=False)
 
 # df_to_mrc(bn_harvested.drop(columns=['index', 'czy polonik', 'gatunki literackie']), '❦', f'bn_harvested_{year}_{month}_{day}.mrc', f'bn_harvested_errors_{year}_{month}_{day}.txt')
 
@@ -436,97 +438,8 @@ bn_harvested = bn_harvested[~bn_harvested['001'].isin(ids)]
 
 
 #%%
-#dodać uzupełnienie 856 + dzielenie deskryptorów, uzupełnianie haseł przedmiotowych PBL
 
-# !!!!!!!!!!!!! jak rozegrać wzbogacenie działami PBL? !!!!!!!!!!!!!!!!!!
-# =============================================================================
-# bn_cz_mapping = pd.read_excel('F:/Cezary/Documents/IBL/Pliki python/bn_cz_mapping.xlsx')
-# gatunki_pbl = pd.DataFrame({'gatunek': ["aforyzm", "album", "antologia", "autobiografia", "dziennik", "esej", "felieton", "inne", "kazanie", "list", "miniatura prozą", "opowiadanie", "poemat", "powieść", "proza", "proza poetycka", "reportaż", "rozmyślanie religijne", "rysunek, obraz", "scenariusz", "szkic", "tekst biblijny", "tekst dramatyczny", "dramat", "wiersze", "wspomnienia", "wypowiedź", "pamiętniki", "poezja", "literatura podróżnicza", "satyra", "piosenka", 'opowiadania i nowele']})
-# gatunki_pbl['gatunek'] = gatunki_pbl['gatunek'].apply(lambda x: f"$a{x}")
-# 
-# bn_harvested['years'] = bn_harvested['008'].apply(lambda x: x[7:11])
-# 
-# years = bn_harvested['years'].unique()
-#   
-# bn_books_marc_total = pd.DataFrame()
-# 
-# for i, year in enumerate(years):
-#     print(str(i) + '/' + str(len(years)))
-#     path = f"F:/Cezary/Documents/IBL/Pliki python/{year}_bn_ks_do_libri.xlsx"
-#     bn_books = pd.read_excel(path)
-#     if bn_books['X005'].dtype == np.float64:
-#         bn_books['X005'] = bn_books['X005'].astype(np.int64)
-# 
-#     pbl_enrichment = bn_books[['id', 'dziedzina_PBL', 'rodzaj_ksiazki', 'DZ_NAZWA', 'X650', 'X655']]
-#     pbl_enrichment['DZ_NAZWA'] = pbl_enrichment['DZ_NAZWA'].str.replace(' - .*?$', '', regex=True)
-#     pbl_enrichment = cSplit(pbl_enrichment, 'id', 'X655', '❦')
-#     pbl_enrichment['jest x'] = pbl_enrichment['X655'].str.contains('\$x')
-#     pbl_enrichment['nowe650'] = pbl_enrichment.apply(lambda x: x['X655'] if x['jest x'] == True else np.nan, axis=1)
-#     pbl_enrichment['X655'] = pbl_enrichment.apply(lambda x: x['X655'] if x['jest x'] == False else np.nan, axis=1)
-#     pbl_enrichment['X650'] = pbl_enrichment[['X650', 'nowe650']].apply(lambda x: '❦'.join(x.dropna().astype(str)), axis=1)
-#     pbl_enrichment = pbl_enrichment.drop(['jest x', 'nowe650'], axis=1)
-# 
-#     query = "select * from pbl_enrichment a join gatunki_pbl b on lower(a.X655) like '%'||b.gatunek||'%'"
-#     gatunki1 = pandasql.sqldf(query)
-#     query = "select * from pbl_enrichment a join gatunki_pbl b on lower(a.X650) like '%'||b.gatunek||'%'"
-#     gatunki2 = pandasql.sqldf(query)
-#     gatunki = pd.concat([gatunki1, gatunki2]).drop_duplicates()
-#     gatunki['gatunek'] = gatunki['gatunek'].apply(lambda x: ''.join([x[:2], x[2].upper(), x[2 + 1:]]).strip())
-#     X655_field = marc_parser_1_field(gatunki, 'id', 'X655', '\$')[['id', '$y']].drop_duplicates()
-#     X655_field = X655_field[X655_field['$y'] != '']
-#     gatunki = pd.merge(gatunki, X655_field, how='left', on='id')
-#     gatunki['gatunek'] = gatunki['gatunek'].apply(lambda x: f"\\7{x.strip()}")
-#     gatunki['gatunek+data'] = gatunki.apply(lambda x: f"{x['gatunek']}$y{x['$y']}" if pd.notnull(x['$y']) else np.nan, axis=1)
-#     gatunki['nowe655'] = gatunki[['X655', 'gatunek', 'gatunek+data']].apply(lambda x: '❦'.join(x.dropna().astype(str)), axis=1)
-#     gatunki['nowe655'] = gatunki.groupby('id')['nowe655'].transform(lambda x: '❦'.join(x))
-#     gatunki = gatunki[['id', 'nowe655']].drop_duplicates()
-#     gatunki['nowe655'] = gatunki['nowe655'].str.split('❦').apply(set).str.join('❦')
-#     
-#     pbl_enrichment = pd.merge(pbl_enrichment, gatunki, how ='left', on='id')
-#     pbl_enrichment['nowe650'] = pbl_enrichment.apply(lambda x: x['X655'] if pd.isnull(x['nowe655']) else np.nan, axis=1)
-#     pbl_enrichment['DZ_NAZWA'] = pbl_enrichment['DZ_NAZWA'].apply(lambda x: f"\\7$a{x}" if 'do ustalenia' not in x else np.nan)
-#     pbl_enrichment['X650'] = pbl_enrichment['X650'].replace(r'^\s*$', np.nan, regex=True)
-#     pbl_enrichment['650'] = pbl_enrichment[['X650', 'nowe650', 'DZ_NAZWA']].apply(lambda x: '❦'.join(x.dropna().astype(str)), axis=1)
-#     pbl_enrichment['655'] = pbl_enrichment['nowe655'].replace(np.nan, '', regex=True)
-#     pbl_enrichment['655'] = pbl_enrichment.apply(lambda x: f"{x['655']}❦\\7$aOpracowanie" if x['rodzaj_ksiazki'] == 'przedmiotowa' else f"{x['655']}❦\\7$aDzieło literackie", axis=1)
-#     pbl_enrichment = pbl_enrichment[['id', '650', '655']].replace(r'^\❦', '', regex=True)
-#     pbl_enrichment['650'] = pbl_enrichment.groupby('id')['650'].transform(lambda x: '❦'.join(x.dropna().astype(str)))
-#     pbl_enrichment['655'] = pbl_enrichment.groupby('id')['655'].transform(lambda x: '❦'.join(x.dropna().astype(str)))
-#     pbl_enrichment = pbl_enrichment.drop_duplicates().reset_index(drop=True)
-#     pbl_enrichment['650'] = pbl_enrichment['650'].str.split('❦').apply(set).str.join('❦')
-#     pbl_enrichment['655'] = pbl_enrichment['655'].str.split('❦').apply(set).str.join('❦')
-#     
-#     position_of_LDR = bn_books.columns.get_loc("LDR")
-#     bn_books_marc = bn_books.iloc[:,position_of_LDR:]
-#     
-#     bn_books_marc = bn_books_marc.set_index('X009', drop=False)
-#     pbl_enrichment = pbl_enrichment.set_index('id').rename(columns={'650':'X650', '655':'X655'})
-#     bn_books_marc = pbl_enrichment.combine_first(bn_books_marc)
-#     
-#     fields_to_remove = bn_cz_mapping[bn_cz_mapping['cz'] == 'del']['bn'].to_list()
-#     bn_books_marc = bn_books_marc.loc[:, ~bn_books_marc.columns.isin(fields_to_remove)]
-#     
-#     merge_500s = [col for col in bn_books_marc.columns if 'X5' in col and col != 'X505']
-#     bn_books_marc['X500'] = bn_books_marc[merge_500s].apply(lambda x: '❦'.join(x.dropna().astype(str)), axis = 1)
-#     merge_500s = [x for x in merge_500s if x != 'X500']
-#     bn_books_marc = bn_books_marc.loc[:, ~bn_books_marc.columns.isin(merge_500s)]
-#     bn_books_marc.rename(columns={'X260':'X264'}, inplace=True)
-#     bn_books_marc.drop(['X852', 'X856'], axis = 1, inplace=True) 
-#     bn_new_column_names = bn_books_marc.columns.to_list()
-#     bn_new_column_names = [column.replace('X', '') for column in bn_new_column_names]
-#     bn_books_marc.columns = bn_new_column_names
-#     
-#     x = '1\$iTytuł oryginału:$aNychterides :$bdiīgīmata,$f2006'
-#     
-#     bn_books_marc['240'] = bn_books_marc['246'].apply(lambda x: x if pd.notnull(x) and any(v in x for v in ('Tyt. oryg.:', 'Tytuł oryginału:', 'Tytuł oryginalny')) else np.nan)
-#     bn_books_marc['246'] = bn_books_marc['246'].apply(lambda x: x if pd.notnull(x) and not any(v in x for v in ('Tyt. oryg.:', 'Tytuł oryginału:', 'Tytuł oryginalny')) else np.nan)
-#     bn_books_marc['995'] = '\\\\$aPBL 2013-2019: książki'
-#     
-#     bn_books_marc_total = bn_books_marc_total.append(bn_books_marc)
-# =============================================================================
-
-# bn_books_marc_total = bn_books_marc_total.replace(r'^\❦', '', regex=True).replace(r'\❦$', '', regex=True)
-bn_cz_mapping = pd.read_excel(r"D:\IBL\Pliki python\bn_cz_mapping.xlsx")
+bn_cz_mapping = pd.read_excel(r"C:\Users\Barbara Wachek\Documents\Python Scripts\PBL_updating_records\data\bn_cz_mapping.xlsx")
 fields_to_remove = bn_cz_mapping[bn_cz_mapping['cz'] == 'del']['bn'].to_list()
 fields_to_remove = [e if e[0] != 'X' else e[1:] for e in fields_to_remove]
 
@@ -547,12 +460,28 @@ if bn_books_marc_total['009'].dtype == np.float64:
         
 bn_books_marc_total['995'] = '\\\\$aPBL 2013-2023: książki'
 
-bn_books_marc_total.to_excel('data/bn_books_marc.xlsx', index=False)
+#Porównanie z ostatnio wygenerowym plikiem bn_books_marc z 2021 roku (aby odsiać duplikaty) folder ELB w Computations
+bn_books_marc_old = pd.read_excel(r"C:\Users\Barbara Wachek\Documents\Python Scripts\PBL_updating_records\data\old_imports\bn_books_marc_OLD.xlsx", sheet_name='Sheet1')
+#Stworzenie list z ID z obu df: starego i nowego:
+list_bn_books_marc_old_ID = set(bn_books_marc_old['001'].dropna().tolist())
+list_bn_books_marc_total_ID = set(bn_books_marc_total['001'].dropna().tolist())
 
-df_to_mrc(bn_books_marc_total, '❦', f'data/libri_marc_bn_books_{year}-{month}-{day}.mrc', f'data/libri_bn_books_errors_{year}-{month}-{day}.txt')
+list_new_records_only_ID = list(list_bn_books_marc_total_ID - list_bn_books_marc_old_ID)
+
+#Filtrowanie bn_books_marc_total, aby uwzględnić tylko rekordy nowe (których nie zaimportowano we wcześniejszym imporcie)
+
+bn_books_marc_final = bn_books_marc_total[bn_books_marc_total['001'].isin(list_new_records_only_ID)]
+bn_books_marc_final.drop_duplicates
+
+#%% Zapisanie do xlsx i mrc i przekształcenie mrc na mrk
+
+bn_books_marc_final.to_excel('data/bn_books_marc.xlsx', index=False)
+
+df_to_mrc(bn_books_marc_final, '❦', f'data/libri_marc_bn_books_{year}-{month}-{day}.mrc', f'data/libri_bn_books_errors_{year}-{month}-{day}.txt')
 mrc_to_mrk(f'data/libri_marc_bn_books_{year}-{month}-{day}.mrc', f'data/libri_marc_bn_books_{year}-{month}-{day}.mrk')
 
-#errors handling
+
+#%%errors handling
 
 with open(f'data/libri_bn_books_errors_{year}-{month}-{day}.txt', encoding='utf8') as file:
     errors = file.readlines()
@@ -566,487 +495,6 @@ if errors:
             df2['009'] = df2['009'].astype(np.int64)
     df_to_mrc(df2, '❦', f'data/libri_marc_bn_books2_{year}-{month}-{day}.mrc', f'data/libri_marc_bn_books2_errors_{year}-{month}-{day}.txt')
     mrc_to_mrk(f'data/libri_marc_bn_books2_{year}-{month}-{day}.mrc', f'data/libri_marc_bn_books2_{year}-{month}-{day}.mrk')
-
-
-
-
-
-
-# !!!!!!!!!!!!!!!!!!!!!!!!! OLD !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-# =============================================================================
-# 
-# #%%
-# file_list = drive.ListFile({'q': f"'{PBL_folder}' in parents and trashed=false"}).GetList() 
-# file_list = drive.ListFile({'q': "'0B0l0pB6Tt9olWlJVcDFZQ010R0E' in parents and trashed=false"}).GetList()
-# file_list = drive.ListFile({'q': "'1tPr_Ly9Lf0ZwgRQjj_iNVt-T15FSWbId' in parents and trashed=false"}).GetList()
-# file_list = drive.ListFile({'q': "'1xzqGIfZllmXXTh2dJABeHbRPFAM34nbw' in parents and trashed=false"}).GetList()
-# #[print(e['title'], e['id']) for e in file_list]
-# mapping_files_655 = [file['id'] for file in file_list if file['title'] == 'mapowanie BN-Oracle - 655'][0]
-# mapping_files_650 = [file['id'] for file in file_list if file['title'].startswith('mapowanie BN-Oracle') if file['id'] != mapping_files_655]
-# 
-# #%% deskryptory z mapowania
-# df_650 = pd.DataFrame()
-# for file in tqdm(mapping_files_650):
-#     sheet = gc.open_by_key(file)
-#     df = get_as_dataframe(sheet.worksheet('deskryptory_650'), evaluate_formulas=True).dropna(how='all').dropna(how='all', axis=1)
-#     df_650 = df_650.append(df)
-# 
-# sheet = gc.open_by_key(mapping_files_655)
-# df_655 = get_as_dataframe(sheet.worksheet('deskryptory_655'), evaluate_formulas=True).dropna(how='all').dropna(how='all', axis=1)
-# 
-# df_650 = df_650[df_650['decyzja'].isin(['margines', 'zmapowane'])][['X650', 'decyzja', 'dzial_PBL_1', 'dzial_PBL_2', 'dzial_PBL_3', 'haslo_przedmiotowe_PBL_1', 'haslo_przedmiotowe_PBL_2', 'haslo_przedmiotowe_PBL_3']].reset_index(drop=True)
-# 
-# dict_650 = {}
-# for i, row in tqdm(df_650.iterrows(), total=df_650.shape[0]):
-#     
-#     lista_dzialow = row[['dzial' in i for i in row.index]].to_list()
-#     lista_dzialow = [e for e in lista_dzialow if pd.notnull(e)]
-#     lista_hasel = row[['haslo' in i for i in row.index]].to_list()
-#     lista_hasel = [e for e in lista_hasel if pd.notnull(e)]
-#     dict_650[row['X650']] = {'decyzja': row['decyzja'], 'działy PBL': lista_dzialow, 'hasła PBL': lista_hasel}
-# 
-# # df_655 = df_655[df_655['decyzja'].isin(['margines', 'zmapowane'])][['X655', 'decyzja', 'dzial_PBL_1', 'dzial_PBL_2', 'dzial_PBL_3', 'dzial_PBL_4', 'dzial_PBL_5', 'haslo_przedmiotowe_PBL_1', 'haslo_przedmiotowe_PBL_2', 'haslo_przedmiotowe_PBL_3', 'haslo_przedmiotowe_PBL_4', 'haslo_przedmiotowe_PBL_5']].reset_index(drop=True)
-# 
-# df_655 = df_655[df_655['decyzja'].isin(['zmapowane'])][['X655', 'decyzja', 'dzial_PBL_1', 'dzial_PBL_2', 'dzial_PBL_3', 'dzial_PBL_4', 'dzial_PBL_5', 'haslo_przedmiotowe_PBL_1', 'haslo_przedmiotowe_PBL_2', 'haslo_przedmiotowe_PBL_3', 'haslo_przedmiotowe_PBL_4', 'haslo_przedmiotowe_PBL_5']].reset_index(drop=True)
-# 
-# dict_655 = {}
-# for i, row in tqdm(df_655.iterrows(), total=df_655.shape[0]):
-#     
-#     lista_dzialow = row[['dzial' in i for i in row.index]].to_list()
-#     lista_dzialow = [e for e in lista_dzialow if pd.notnull(e)]
-#     lista_hasel = row[['haslo' in i for i in row.index]].to_list()
-#     lista_hasel = [e for e in lista_hasel if pd.notnull(e)]
-#     dict_655[row['X655']] = {'decyzja': row['decyzja'], 'działy PBL': lista_dzialow, 'hasła PBL': lista_hasel}
-# 
-# # dict_650['Poradnik']    
-# # dict_655['Poradnik'] 
-#     
-# #lista deskryptorów do wzięcia - szeroka (z mapowania)
-# BN_descriptors_mapping = list(dict_650.keys())
-# BN_descriptors_mapping.extend(dict_655.keys())
-# BN_descriptors_mapping = list(set([re.sub('\$y.*', '', e) for e in BN_descriptors_mapping]))
-# 
-# #dydaktyka
-# dydaktyka = get_as_dataframe(sheet.worksheet('dydaktyka'), evaluate_formulas=True).dropna(how='all').dropna(how='all', axis=1)
-# dydaktyka_650 = [e.split('❦') for e in dydaktyka[650] if pd.notnull(e)]
-# dydaktyka_650 = list(set([re.sub('\$y.*', '', e[4:]).replace('$2DBN', '') for sub in dydaktyka_650 for e in sub]))
-# 
-# dydaktyka_655 = [e.split('❦') for e in dydaktyka[655] if pd.notnull(e)]
-# dydaktyka_655 = list(set([re.sub('\$y.*', '', e[4:]).replace('$2DBN', '') for sub in dydaktyka_655 for e in sub]))
-# 
-# #%% deskryptory do harvestowania BN
-# #lista deskryptorów do wzięcia - wąska (z selekcji Karoliny)
-# deskryptory_do_filtrowania = [file['id'] for file in file_list if file['title'] == 'deskryptory_do_filtrowania'][0]
-# deskryptory_do_filtrowania = gc.open_by_key(deskryptory_do_filtrowania)
-# deskryptory_do_filtrowania = get_as_dataframe(deskryptory_do_filtrowania.worksheet('deskryptory_do_filtrowania'), evaluate_formulas=True).dropna(how='all').dropna(how='all', axis=1)
-# BN_descriptors = deskryptory_do_filtrowania[deskryptory_do_filtrowania['deskryptor do filtrowania'] == 'tak']['deskryptory'].to_list()
-# def uproszczenie_nazw(x):
-#     try:
-#         if x.index('$') == 0:
-#             return x[2:]
-#         elif x.index('$') == 1:
-#             return x[4:]
-#     except ValueError:
-#         return x
-# BN_descriptors = list(set([e.strip() for e in BN_descriptors]))
-# BN_descriptors2 = list(set(uproszczenie_nazw(e) for e in BN_descriptors))
-# roznica = list(set(BN_descriptors2) - set(BN_descriptors))
-# BN_descriptors.extend(roznica)
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# bn_relations = gsheet_to_df('1WPhir3CwlYre7pw4e76rEnJq5DPvVZs3_828c_Mqh9c', 'relacje_rev_book').drop(columns='typ').rename(columns={'id':'001'})
-# bn_books_chapters = gsheet_to_df('1hNQh9tS2c1oY10lxk9fOgSyB9Xmtgrgn6kFYo9ASnqo', 'relations')
-# bn_books_chapters = bn_books_chapters[bn_books_chapters['type'] == 'book'].rename(columns={'id':'001'})
-# bn_relations = pd.concat([bn_relations, bn_books_chapters])
-# 
-# books_id = tuple(bn_books_chapters['001'].to_list())
-# =============================================================================
-
-# =============================================================================
-# #%% NOTATKI
-# #porównanie dwóch metod harvestowania BN
-# 
-# df_stare = mrk_to_df('F:/Cezary/Documents/IBL/Libri/Iteracja 2021-02/libri_marc_bn_books_2021-2-9.mrk')
-# sheet = gc.create(f'porównanie_podejść_{year}_{month}_{day}', '1xzqGIfZllmXXTh2dJABeHbRPFAM34nbw')
-# 
-# worksheet = sheet.worksheet('Arkusz1')
-# worksheet.update_title('jest_a_nie_bylo')
-# jest_a_nie_bylo = bn_harvested[~bn_harvested['001'].isin(df_stare['001'])][['LDR', '001', '008', '080', '100', '245', '650', '655', '380', '386']]
-# set_with_dataframe(worksheet, jest_a_nie_bylo)
-# 
-# jest_tu_i_tu = bn_harvested[bn_harvested['001'].isin(df_stare['001'])][['LDR', '001', '008', '080', '100', '245', '650', '655', '380', '386']]
-# try:
-#     set_with_dataframe(sheet.worksheet('jest_tu_i_tu'), jest_tu_i_tu)
-# except gs.WorksheetNotFound:
-#     sheet.add_worksheet(title='jest_tu_i_tu', rows="100", cols="20")
-#     set_with_dataframe(sheet.worksheet('jest_tu_i_tu'), jest_tu_i_tu)
-# 
-# bylo_a_nie_ma = df_stare[~df_stare['001'].isin(bn_harvested['001'])]['001'].to_list()
-# 
-# years = range(2013,2020)
-#    
-# path = 'F:/Cezary/Documents/IBL/Migracja z BN/bn_all/2021-02-08/'
-# files = [file for file in glob.glob(path + '*.mrk', recursive=True)]
-# 
-# encoding = 'utf-8'
-# new_list = []
-# for file_path in tqdm(files):
-#     marc_list = io.open(file_path, 'rt', encoding = encoding).read().splitlines()
-# 
-#     mrk_list = []
-#     for row in marc_list:
-#         if row.startswith('=LDR'):
-#             mrk_list.append([row])
-#         else:
-#             if row:
-#                 mrk_list[-1].append(row)
-#             
-#     for sublist in mrk_list:
-#         try:
-#             year_biblio = int(''.join([ele for ele in sublist if ele.startswith('=008')])[13:17])
-#             bibliographic_level = ''.join([ele for ele in sublist if ele.startswith('=LDR')])[13]
-#             if year_biblio in years and bibliographic_level == 'm':
-#                 for el in sublist:
-#                     if el.startswith('=001'):
-#                         el = el[6:]
-#                         if el in bylo_a_nie_ma:
-#                             new_list.append(sublist)
-#                             break
-#         except ValueError:
-#             pass
-# 
-# final_list = []
-# for lista in new_list:
-#     slownik = {}
-#     for el in lista:
-#         if el[1:4] in slownik:
-#             slownik[el[1:4]] += f"❦{el[6:]}"
-#         else:
-#             slownik[el[1:4]] = el[6:]
-#     final_list.append(slownik)
-# 
-# bylo_a_nie_ma = pd.DataFrame(final_list).drop_duplicates().reset_index(drop=True)
-# fields = bylo_a_nie_ma.columns.tolist()
-# fields = [i for i in fields if 'LDR' in i or re.compile('\d{3}').findall(i)]
-# bylo_a_nie_ma = bylo_a_nie_ma.loc[:, bylo_a_nie_ma.columns.isin(fields)]
-# fields.sort(key = lambda x: ([str,int].index(type("a" if re.findall(r'\w+', x)[0].isalpha() else 1)), x))
-# bylo_a_nie_ma = bylo_a_nie_ma.reindex(columns=fields)[['LDR', '001', '008', '080', '100', '245', '650', '655', '380', '386']]
-# 
-# try:
-#     set_with_dataframe(sheet.worksheet('bylo_a_nie_ma'), bylo_a_nie_ma)
-# except gs.WorksheetNotFound:
-#     sheet.add_worksheet(title='bylo_a_nie_ma', rows="100", cols="20")
-#     set_with_dataframe(sheet.worksheet('bylo_a_nie_ma'), bylo_a_nie_ma)
-#     
-# worksheets = sheet.worksheets()
-# for worksheet in worksheets:
-#     sheet.batch_update({
-#         "requests": [
-#             {
-#                 "updateDimensionProperties": {
-#                     "range": {
-#                         "sheetId": worksheet._properties['sheetId'],
-#                         "dimension": "ROWS",
-#                         "startIndex": 0,
-#                         #"endIndex": 100
-#                     },
-#                     "properties": {
-#                         "pixelSize": 20
-#                     },
-#                     "fields": "pixelSize"
-#                 }
-#             }
-#         ]
-#     })
-#     
-#     worksheet.freeze(rows=1)
-#     worksheet.set_basic_filter()
-# 
-# #%% analiza jakościowa
-# 
-# list_of_dfs = [dobre1_df, dobre2_df, dobre3_df, dobre4_df]
-# list_of_dfs_names = ['dobre1_df', 'dobre2_df', 'dobre3_df', 'dobre4_df']
-# 
-# for name, data_frame in zip(list_of_dfs_names, list_of_dfs):
-#     if 'b1000000245117' in data_frame['001'].to_list():
-#         print(name)
-# 
-# test = dobre1_df[dobre1_df['001'] == 'b1000000245117']
-# 
-# test = df[df['001'] == 'b0000005818158'].squeeze()
-# 
-# 'b0000005818158'
-# 
-# #%% notatki
-# 
-# test = pd.DataFrame(BN_descriptors, columns=['deskryptory'])
-# test.to_excel('deskryptory_do_filtrowania.xlsx', index=False)
-# 
-# 
-# 
-# #Karolina - udokumentować proces!!!
-# 
-# df_stare = mrk_to_df('F:/Cezary/Documents/IBL/Libri/Iteracja 2021-02/libri_marc_bn_books_2021-2-9.mrk')
-# =============================================================================
-
-
-#%% Stare podejście (nie na bazie deskryptorów)
-
-# bn_relations = gsheet_to_df('1WPhir3CwlYre7pw4e76rEnJq5DPvVZs3_828c_Mqh9c', 'relacje_rev_book').drop(columns='typ').rename(columns={'id':'001'})
-# bn_books_chapters = gsheet_to_df('1hNQh9tS2c1oY10lxk9fOgSyB9Xmtgrgn6kFYo9ASnqo', 'relations')
-# bn_books_chapters = bn_books_chapters[bn_books_chapters['type'] == 'book'].rename(columns={'id':'001'})
-# bn_relations = pd.concat([bn_relations, bn_books_chapters])
-
-# books_id = tuple(bn_books_chapters['001'].to_list())
-
-# bn_cz_mapping = pd.read_excel('F:/Cezary/Documents/IBL/Pliki python/bn_cz_mapping.xlsx')
-# gatunki_pbl = pd.DataFrame({'gatunek': ["aforyzm", "album", "antologia", "autobiografia", "dziennik", "esej", "felieton", "inne", "kazanie", "list", "miniatura prozą", "opowiadanie", "poemat", "powieść", "proza", "proza poetycka", "reportaż", "rozmyślanie religijne", "rysunek, obraz", "scenariusz", "szkic", "tekst biblijny", "tekst dramatyczny", "dramat", "wiersze", "wspomnienia", "wypowiedź", "pamiętniki", "poezja", "literatura podróżnicza", "satyra", "piosenka", 'opowiadania i nowele']})
-# gatunki_pbl['gatunek'] = gatunki_pbl['gatunek'].apply(lambda x: f"$a{x}")
-
-# # polona full text url
-
-# # =============================================================================
-# # wzbogacić o linki na podstawie 852 i wpisać je do 856, uprzednio czyszcząc 856
-# # usunąć 856
-# # będzie trzeba przeszukiwać, czy tytuł w jsonie "title" jest taki, jak w 245
-# # =============================================================================
-
-# years = range(starting_year,ending_year)
-# # =============================================================================
-# # bn_full_text = pd.DataFrame()   
-# # for index, year in enumerate(years):
-# #     print(str(index) + '/' + str(len(years)))
-# #     path = f"C:/Users/User/Desktop/BN_books/{year}_bn_ks_do_libri.xlsx"
-# #     #path = f"F:/Cezary/Documents/IBL/Pliki python/{year}_bn_ks_do_libri.xlsx"
-# #     bn_books = pd.read_excel(path)
-# #     X245 = marc_parser_1_field(bn_books, 'id', 'X245', '\$')[['id', '$a']]
-# #     links_bn = marc_parser_1_field(bn_books, 'id', 'X852', '\$')[['id', '$h']]
-# #     links_bn['link_code'] = links_bn['$h'].apply(lambda x: re.findall('\d[\d\.]+', x)).apply(lambda x: ''.join([i for i in x if i != '.']))
-# #     links_bn = links_bn[links_bn['link_code'] != ''][['id', 'link_code']].values.tolist()
-# #     bn_full_text_links = []
-# #     for i, (bn_id, link) in enumerate(links_bn):
-# #         print('    ' + str(i) + '/' + str(len(links_bn)))
-# #         api_url = f"https://polona.pl/api/entities/?format=json&from=0&highlight=1&public=1&query={link}"
-# #         json_data = requests.get(api_url)
-# #         json_data = json.loads(json_data.text)
-# #         try:                     
-# #             full_text = [''.join([elem['url'] for elem in hit['resources'] if 'archive' in elem['url']]) for hit in json_data['hits']]
-# #             json_title = [hit['title'] for hit in json_data['hits']]
-# #             json_record = list(zip(json_title, full_text))
-# #             json_record = [elem for elem in json_record if len(elem[1])>0]
-# #             json_record = [(bn_id, e, f) for e, f in json_record]
-# #             bn_full_text_links += json_record
-# #         except:
-# #             pass  
-# #     links_bn = pd.DataFrame(bn_full_text_links, columns=['id', 'json_title', 'full_text_url'])
-# #     links_bn = pd.merge(links_bn, X245, how='left', on='id')
-# #     links_bn['match'] = links_bn[['json_title', '$a']].apply(lambda x: x['json_title'] in x['$a'], axis=1)
-# #     links_bn = links_bn[links_bn['match']==True].drop(columns=['json_title', '$a', 'match'])
-# #     bn_full_text = bn_full_text.append(links_bn)
-# # 
-# # bn_full_text.to_excel('bn_full_text.xlsx', index=False)
-# # =============================================================================
-    
-# bn_books_marc_total = pd.DataFrame()
-
-# for i, year in enumerate(years):
-#     print(str(i) + '/' + str(len(years)))
-#     path = f"F:/Cezary/Documents/IBL/Pliki python/{year}_bn_ks_do_libri.xlsx"
-#     bn_books = pd.read_excel(path)
-#     if bn_books['X005'].dtype == np.float64:
-#         bn_books['X005'] = bn_books['X005'].astype(np.int64)
-#     to_remove = bn_books[(bn_books['X655'].isnull()) &
-#                     (bn_books['rodzaj_ksiazki'] == 'podmiotowa') &
-#                     (bn_books['gatunek'].isnull()) &
-#                     ((bn_books['X080'].str.contains('\$a94') == False) &
-#                      (bn_books['X080'].str.contains('\$a316') == False) &
-#                      (bn_books['X080'].str.contains('\$a929') == False) &
-#                      (bn_books['X080'].str.contains('\$a821') == False) |
-#                      (bn_books['X080'].isnull()))][['id', 'dziedzina_PBL', 'gatunek', 'X080', 'X100', 'X245', 'X650', 'X655']]
-#     X100_field = marc_parser_1_field(to_remove, 'id', 'X100', '\$')
-#     X100_field['year'] = X100_field['$d'].apply(lambda x: re.findall('\d+', x)[0] if x!='' else np.nan)
-#     X100_field = X100_field[X100_field['year'].notnull()]
-#     X100_field = X100_field[X100_field['year'].astype(int) <= 1700]
-#     to_remove = to_remove[~to_remove['id'].isin(X100_field['id'])]
-    
-#     bn_books = bn_books[~bn_books['id'].isin(to_remove['id'])]
-#     pbl_enrichment = bn_books[['id', 'dziedzina_PBL', 'rodzaj_ksiazki', 'DZ_NAZWA', 'X650', 'X655']]
-#     pbl_enrichment['DZ_NAZWA'] = pbl_enrichment['DZ_NAZWA'].str.replace(' - .*?$', '', regex=True)
-#     pbl_enrichment = cSplit(pbl_enrichment, 'id', 'X655', '❦')
-#     pbl_enrichment['jest x'] = pbl_enrichment['X655'].str.contains('\$x')
-#     pbl_enrichment['nowe650'] = pbl_enrichment.apply(lambda x: x['X655'] if x['jest x'] == True else np.nan, axis=1)
-#     pbl_enrichment['X655'] = pbl_enrichment.apply(lambda x: x['X655'] if x['jest x'] == False else np.nan, axis=1)
-#     pbl_enrichment['X650'] = pbl_enrichment[['X650', 'nowe650']].apply(lambda x: '❦'.join(x.dropna().astype(str)), axis=1)
-#     pbl_enrichment = pbl_enrichment.drop(['jest x', 'nowe650'], axis=1)
-
-#     query = "select * from pbl_enrichment a join gatunki_pbl b on lower(a.X655) like '%'||b.gatunek||'%'"
-#     gatunki1 = pandasql.sqldf(query)
-#     query = "select * from pbl_enrichment a join gatunki_pbl b on lower(a.X650) like '%'||b.gatunek||'%'"
-#     gatunki2 = pandasql.sqldf(query)
-#     gatunki = pd.concat([gatunki1, gatunki2]).drop_duplicates()
-#     gatunki['gatunek'] = gatunki['gatunek'].apply(lambda x: ''.join([x[:2], x[2].upper(), x[2 + 1:]]).strip())
-#     X655_field = marc_parser_1_field(gatunki, 'id', 'X655', '\$')[['id', '$y']].drop_duplicates()
-#     X655_field = X655_field[X655_field['$y'] != '']
-#     gatunki = pd.merge(gatunki, X655_field, how='left', on='id')
-#     gatunki['gatunek'] = gatunki['gatunek'].apply(lambda x: f"\\7{x.strip()}")
-#     gatunki['gatunek+data'] = gatunki.apply(lambda x: f"{x['gatunek']}$y{x['$y']}" if pd.notnull(x['$y']) else np.nan, axis=1)
-#     gatunki['nowe655'] = gatunki[['X655', 'gatunek', 'gatunek+data']].apply(lambda x: '❦'.join(x.dropna().astype(str)), axis=1)
-#     gatunki['nowe655'] = gatunki.groupby('id')['nowe655'].transform(lambda x: '❦'.join(x))
-#     gatunki = gatunki[['id', 'nowe655']].drop_duplicates()
-#     gatunki['nowe655'] = gatunki['nowe655'].str.split('❦').apply(set).str.join('❦')
-    
-#     pbl_enrichment = pd.merge(pbl_enrichment, gatunki, how ='left', on='id')
-#     pbl_enrichment['nowe650'] = pbl_enrichment.apply(lambda x: x['X655'] if pd.isnull(x['nowe655']) else np.nan, axis=1)
-#     pbl_enrichment['DZ_NAZWA'] = pbl_enrichment['DZ_NAZWA'].apply(lambda x: f"\\7$a{x}" if 'do ustalenia' not in x else np.nan)
-#     pbl_enrichment['X650'] = pbl_enrichment['X650'].replace(r'^\s*$', np.nan, regex=True)
-#     pbl_enrichment['650'] = pbl_enrichment[['X650', 'nowe650', 'DZ_NAZWA']].apply(lambda x: '❦'.join(x.dropna().astype(str)), axis=1)
-#     pbl_enrichment['655'] = pbl_enrichment['nowe655'].replace(np.nan, '', regex=True)
-#     pbl_enrichment['655'] = pbl_enrichment.apply(lambda x: f"{x['655']}❦\\7$aOpracowanie" if x['rodzaj_ksiazki'] == 'przedmiotowa' else f"{x['655']}❦\\7$aDzieło literackie", axis=1)
-#     pbl_enrichment = pbl_enrichment[['id', '650', '655']].replace(r'^\❦', '', regex=True)
-#     pbl_enrichment['650'] = pbl_enrichment.groupby('id')['650'].transform(lambda x: '❦'.join(x.dropna().astype(str)))
-#     pbl_enrichment['655'] = pbl_enrichment.groupby('id')['655'].transform(lambda x: '❦'.join(x.dropna().astype(str)))
-#     pbl_enrichment = pbl_enrichment.drop_duplicates().reset_index(drop=True)
-#     pbl_enrichment['650'] = pbl_enrichment['650'].str.split('❦').apply(set).str.join('❦')
-#     pbl_enrichment['655'] = pbl_enrichment['655'].str.split('❦').apply(set).str.join('❦')
-    
-#     position_of_LDR = bn_books.columns.get_loc("LDR")
-#     bn_books_marc = bn_books.iloc[:,position_of_LDR:]
-    
-#     bn_books_marc = bn_books_marc.set_index('X009', drop=False)
-#     pbl_enrichment = pbl_enrichment.set_index('id').rename(columns={'650':'X650', '655':'X655'})
-#     bn_books_marc = pbl_enrichment.combine_first(bn_books_marc)
-    
-#     fields_to_remove = bn_cz_mapping[bn_cz_mapping['cz'] == 'del']['bn'].to_list()
-#     bn_books_marc = bn_books_marc.loc[:, ~bn_books_marc.columns.isin(fields_to_remove)]
-    
-#     merge_500s = [col for col in bn_books_marc.columns if 'X5' in col and col != 'X505']
-#     bn_books_marc['X500'] = bn_books_marc[merge_500s].apply(lambda x: '❦'.join(x.dropna().astype(str)), axis = 1)
-#     merge_500s = [x for x in merge_500s if x != 'X500']
-#     bn_books_marc = bn_books_marc.loc[:, ~bn_books_marc.columns.isin(merge_500s)]
-#     bn_books_marc.rename(columns={'X260':'X264'}, inplace=True)
-#     bn_books_marc.drop(['X852', 'X856'], axis = 1, inplace=True) 
-#     bn_new_column_names = bn_books_marc.columns.to_list()
-#     bn_new_column_names = [column.replace('X', '') for column in bn_new_column_names]
-#     bn_books_marc.columns = bn_new_column_names
-    
-#     x = '1\$iTytuł oryginału:$aNychterides :$bdiīgīmata,$f2006'
-    
-#     bn_books_marc['240'] = bn_books_marc['246'].apply(lambda x: x if pd.notnull(x) and any(v in x for v in ('Tyt. oryg.:', 'Tytuł oryginału:', 'Tytuł oryginalny')) else np.nan)
-#     bn_books_marc['246'] = bn_books_marc['246'].apply(lambda x: x if pd.notnull(x) and not any(v in x for v in ('Tyt. oryg.:', 'Tytuł oryginału:', 'Tytuł oryginalny')) else np.nan)
-#     bn_books_marc['995'] = '\\\\$aPBL 2013-2023: książki'
-    
-#     bn_books_marc_total = bn_books_marc_total.append(bn_books_marc)
-
-# bn_books_marc_total = bn_books_marc_total.replace(r'^\❦', '', regex=True).replace(r'\❦$', '', regex=True)
-
-# bn_books_marc_total = pd.merge(bn_books_marc_total, bn_relations, on='001', how='left')
-
-# field_list = bn_books_marc_total.columns.tolist()
-# field_list.sort(key = lambda x: ([str,int].index(type("a" if re.findall(r'\w+', x)[0].isalpha() else 1)), x))
-# bn_books_marc_total = bn_books_marc_total.reindex(columns=field_list)
-# bn_books_marc_total = bn_books_marc_total.reset_index(drop=True)
-# bn_books_marc_total['008'] = bn_books_marc_total['008'].str.replace('\\', ' ')
-# if bn_books_marc_total['009'].dtype == np.float64:
-#         bn_books_marc_total['009'] = bn_books_marc_total['009'].astype(np.int64)
-
-# bn_books_marc_total.to_excel('bn_books_marc.xlsx', index=False)
-
-# now = datetime.datetime.now()
-# year = now.year
-# month = now.month
-# day = now.day
-
-# df_to_mrc(bn_books_marc_total, '❦', f'libri_marc_bn_books_{year}-{month}-{day}.mrc', f'libri_bn_books_errors_{year}-{month}-{day}.txt')
-# mrc_to_mrk(f'libri_marc_bn_books_{year}-{month}-{day}.mrc', f'libri_marc_bn_books_{year}-{month}-{day}.mrk')
-
-# print('Done')
-
-# errors_txt = io.open(f'libri_bn_books_errors_{year}-{month}-{day}.txt', 'rt', encoding='UTF-8').read().splitlines()
-# errors_txt = [e for e in errors_txt if e]
-
-# new_list = []
-
-# for sublist in errors_txt:
-#     sublist = ast.literal_eval(sublist)
-#     di = {x:y for x,y in sublist}
-#     new_list.append(di)
-    
-# for dictionary in new_list:
-#     for key in dictionary.keys():
-#         dictionary[key] = '❦'.join([e for e in dictionary[key] if e])
-
-# df = pd.DataFrame(new_list)
-# df['LDR'] = '-----nam---------4u-----'
-# #investigate the file thoroughly if more errors
-
-# df_to_mrc(df, '❦', f'libri_marc_bn_books_vol_2_{year}-{month}-{day}.mrc', f'libri_bn_books_errors_vol_2_{year}-{month}-{day}.txt')
-# mrc_to_mrk(f'libri_marc_bn_books_vol_2_{year}-{month}-{day}.mrc', f'libri_marc_bn_books_vol_2_{year}-{month}-{day}.mrk')
-
-
-
-#%% pozyskanie nowych deskryptorów po zmianach w BN (JHP --> desc)
-# old_bn_ids = set(pd.read_excel(r"D:\IBL\Libri\Iteracja 2021-07\bn_books_marc.xlsx")['001'].to_list())
-
-# start_year = 2013
-# end_year = 2023
-# path = 'D:\\IBL\\BN\\bn_all\\2023-07-20/'
-# years = range(start_year, end_year+1)
-# # path = r"D:\IBL\BN\bn_all\2023-01-23/"
-# encoding = 'utf-8'
-# files = [file for file in glob.glob(path + '*.mrk', recursive=True)]
-# new_list = []
-# for file_path in tqdm(files):
-#     # file_path = files[-1]
-#     marc_list = io.open(file_path, 'rt', encoding = encoding).read().splitlines()
-
-#     mrk_list = []
-#     for row in marc_list:
-#         if row.startswith('=LDR'):
-#             mrk_list.append([row])
-#         else:
-#             if row:
-#                 mrk_list[-1].append(row)
-                
-#     for sublist in mrk_list:
-#         biblio_id = ''.join([ele for ele in sublist if ele.startswith('=001')])[6:]
-#         if biblio_id in old_bn_ids:
-#             new_list.append(sublist)
- 
-                               
-# records_list_of_dicts = []
-# for e in tqdm(new_list):
-#     temp_dict = {}
-#     for el in e:
-#         temp_dict.setdefault(el[1:4], list()).append(el[6:])
-#     records_list_of_dicts.append(temp_dict)
-        
-# records_list_of_dicts[0]
-
-# x650 = set()
-# x655 = set()
-
-# for e in tqdm(records_list_of_dicts):
-#     if e.get('650'):
-#         [x650.add(el) for el in e.get('650')]
-#     if e.get('655'):
-#         [x655.add(el) for el in e.get('655')]
-
-
-
-# test = set([marc_parser_dict_for_field(e, '\\$').get('$a') for e in x655])
-
-# marc_parser_dict_for_field(list(x655)[0], '\\$').get('$a')
-
-
-# test = set([marc_parser_dict_for_field(e, '\\$').get('$a') for e in bn_deskryptory2])
-
 
 
 
