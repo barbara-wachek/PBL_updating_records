@@ -271,6 +271,23 @@ multiple_poems = multiple_poems.drop(columns='idx')
 
 bn_articles_marc = pd.concat([bn_articles_marc, multiple_poems]).reset_index(drop=True).sort_values('001')
 
+#Porównanie z ostatnio wygenerowym plikiem bn_articles_marc z 2021 roku (aby odsiać duplikaty) folder ELB w Computations
+bn_articles_marc_old = pd.read_excel(r"C:\Users\Barbara Wachek\Documents\Python Scripts\PBL_updating_records\data\old_imports\bn_articles_marc_2021-07-01.xlsx", sheet_name='Sheet1')
+#Stworzenie list z ID z obu df: starego i nowego:
+list_bn_articles_marc_old_ID = set(bn_articles_marc_old['001'].dropna().tolist())
+list_bn_articles_marc_ID = set(bn_articles_marc['001'].dropna().tolist())
+
+list_new_records_only_ID = list(list_bn_articles_marc_ID - list_bn_articles_marc_old_ID)
+
+#Filtrowanie bn_books_marc_total, aby uwzględnić tylko rekordy nowe (których nie zaimportowano we wcześniejszym imporcie)
+
+bn_articles_marc = bn_articles_marc[bn_articles_marc['001'].isin(list_new_records_only_ID)]
+bn_articles_marc.drop_duplicates
+
+# len(set(bn_articles_marc['001']))
+
+
+
 bn_articles_marc.to_excel('data/bn_articles_marc.xlsx', index=False)
 
 df_to_mrc(bn_articles_marc, '❦', f'data/libri_marc_bn_articles_{year}-{month}-{day}.mrc', f'data/libri_bn_articles_errors_{year}-{month}-{day}.txt')
@@ -288,7 +305,7 @@ if errors:
     mrc_to_mrk(f'data/libri_marc_bn_articles_vol_2_{year}-{month}-{day}.mrc', f'data/libri_marc_bn_articles_vol_2_{year}-{month}-{day}.mrk')
  
     
- #Wyrzucic z tego zbioru rzeczy wczesniej pobrane! Analogicznie jak w przypadku ksiazek
+
 
 #%% porównanie zasobów
 # nowe = read_MARC21('marc_df_articles_2021_05_25.mrk')
