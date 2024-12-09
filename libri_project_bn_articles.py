@@ -2,7 +2,6 @@
 import pandas as pd
 import numpy as np
 import sys
-sys.path.insert(1, 'C:/Users/Cezary/Documents/IBL-PAN-Python')
 from my_functions import marc_parser_to_list, cSplit, df_to_mrc, gsheet_to_df, mrc_to_mrk, marc_parser_to_dict
 import pandasql
 import json
@@ -16,7 +15,6 @@ from json.decoder import JSONDecodeError
 from urllib.parse import urlparse
 import datetime
 import ast
-sys.path.insert(1, 'C:/Users/Cezary/Documents/SPUB-project')
 from old_SPUB_importer_read_data import read_MARC21
 from tqdm import tqdm
 from pydrive.auth import GoogleAuth
@@ -145,7 +143,9 @@ deskryptory_08_2023 = set(deskryptory_08_2023.loc[deskryptory_08_2023['ok'] == '
 
 #%% BN data extraction
 
-path = r"D:\IBL\BN\bn_all\2023-07-20/"
+# path = r"D:\IBL\BN\bn_all\2023-07-20/"
+path = r'C:/Users/Barbara Wachek/Documents/Python Scripts/PBL_updating_records/data/2024-12-05/'
+
 files = [file for file in glob.glob(path + '*.mrk', recursive=True)]
 years = range(2004,2024)
 encoding = 'utf-8'
@@ -195,6 +195,7 @@ marc_df = marc_df.reindex(columns=fields)
 
 bn_articles_marc = marc_df.copy()
 bn_articles_marc.drop(['852', '856'], axis = 1, inplace=True) 
+
 bn_articles_marc['240'] = bn_articles_marc['246'].apply(lambda x: x if pd.notnull(x) and 'Tyt. oryg.:' in x else np.nan)
 bn_articles_marc['246'] = bn_articles_marc['246'].apply(lambda x: x if pd.notnull(x) and 'Tyt. oryg.:' not in x else np.nan)
 bn_articles_marc['008'] = bn_articles_marc['008'].str.replace('\\', ' ')
@@ -285,7 +286,9 @@ if errors:
     df2 = pd.DataFrame(errors)
     df_to_mrc(df2, '❦', f'data/libri_marc_bn_articles_vol_2_{year}-{month}-{day}.mrc', f'data/libri_marc_bn_articles_vol_2_{year}-{month}-{day}.txt')
     mrc_to_mrk(f'data/libri_marc_bn_articles_vol_2_{year}-{month}-{day}.mrc', f'data/libri_marc_bn_articles_vol_2_{year}-{month}-{day}.mrk')
-
+ 
+    
+ #Wyrzucic z tego zbioru rzeczy wczesniej pobrane! Analogicznie jak w przypadku ksiazek
 
 #%% porównanie zasobów
 # nowe = read_MARC21('marc_df_articles_2021_05_25.mrk')
