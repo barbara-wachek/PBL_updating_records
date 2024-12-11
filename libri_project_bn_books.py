@@ -272,10 +272,12 @@ dydaktyka_655 = [e.split('❦') for e in dydaktyka[655] if pd.notnull(e)]
 dydaktyka_655 = list(set([re.sub('\$y.*', '', e[4:]).replace('$2DBN', '') for sub in dydaktyka_655 for e in sub]))
 
 #%% BN relacje
+##UWAGA! Podmienić ID pliku na aktualny plik z relacjami (wygenerowany na etapie kodu chapters) w zmiennej newest_relations. Pliku szukać w tym folderze: https://drive.google.com/drive/folders/1aATJM13muNYUB6CGhvuPMPtOzjT5XE8j 
+
 bn_relations = gsheet_to_df('1WPhir3CwlYre7pw4e76rEnJq5DPvVZs3_828c_Mqh9c', 'relacje_rev_book').rename(columns={'id':'001'})
 bn_relations = bn_relations[bn_relations['typ'] == 'book'].rename(columns={'id':'001'})
-# newest_relations = input('Provide google sheet id for the newest relations: ') #newest: 1KjoDr10JeKF_BMLHzKhmguwrhyJ1k_tnlUl1-q4A9No
-newest_relations = '1KjoDr10JeKF_BMLHzKhmguwrhyJ1k_tnlUl1-q4A9No'
+
+newest_relations = '1nknxNCQZurZLbNBOc8yO20H2bWt4RaV4X4wWX92RhOE'
 
 bn_books_chapters = gsheet_to_df(newest_relations, 'relations')
 bn_books_chapters = bn_books_chapters[bn_books_chapters['type'] == 'book'].rename(columns={'id':'001'})
