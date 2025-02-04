@@ -16,15 +16,16 @@ https://data.bn.org.pl/databases
 #### W MarcEdit dzielimy dużą paczkę BN i przygotowujemy mniejsze pliki:
 Tools (menu na pasku u góry) → MARC Processing Tools → MARCSplit → podzielić na paczki po 200k
 #### Konwersja plików .mrc na .mrk - kod marc_to_table.py (tylko pierwsza funkcja)
-#### Uruchamiamy kod python w następującej kolejności:
+#### Uruchamiamy kod w następującej kolejności:
 1. chapters - libri_project_bn_chapters.py
 2. articles - libri_project_bn_articles.py
 3. books - libri_project_bn_books.py
 
-
 Pamiętaj, żeby zawsze wygenerowae pliki porównywać z poprzednimi importami (żeby odsiać duplikaty).
+#### Wzbogacanie danych: pliki wygenerowane powyższymi skryptami przetworzyć za pomocą kodu BN_update.py
 
-#### Na końcu wygenerowane pliki dodać do folderu Computations/ELB/aktualizacja danych w folderze z datą dzisiejszą.
+#### Na końcu gotowe (wzbogacone) pliki dodać do folderu Computations/ELB/aktualizacja danych w folderze z datą dzisiejszą. MG do ELB preferuje pliki w formacie mrk.
+
 
 
 ##### Instrukcje szczegółowe dot. skryptów:
@@ -37,3 +38,8 @@ Pamiętaj, żeby zawsze wygenerowae pliki porównywać z poprzednimi importami (
 
 ###### libri_project_bn_books.py:
 1. Pamiętać, żeby w zmiennej **newest_relations** (wiersz 280.) podstawić ID nowego pliku (wygenerowanego po wykonaniu kodu libri_project_bn_chapters.py). Plik powinien być dostępny w folderze **Relacje rozdziałów i książek BN** (link u góry).
+
+
+###### BN_UPDATE.py:
+1. Zwrócić uwagę na komentarze na początku każdej sekcji kodu. Tam jest opisane, które zadania robi osoba ze strony PBL (Basia), a które osoba ze strony ELB (Marcin). W przyszłości ten podział może się zmienić
+2. Pliki niezbędne do wykonania kodu: all_650_new_karolina.xlsx, Major_genre_wszystko.xlsx. Dostępne są tutaj: https://drive.google.com/drive/folders/1XxhJRvzdYlSR-MCy-xN8uUam2OU0p1tn?usp=drive_link
