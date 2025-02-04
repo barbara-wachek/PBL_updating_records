@@ -11,6 +11,8 @@
 
 
 ## Kolejność prac:
+
+### Import do ELB:
 #### Pobranie aktualnej paczki danych z Biblioteki Narodowej  – bibs-all.marc
 https://data.bn.org.pl/databases
 #### W MarcEdit dzielimy dużą paczkę BN i przygotowujemy mniejsze pliki:
@@ -24,7 +26,13 @@ Tools (menu na pasku u góry) → MARC Processing Tools → MARCSplit → podzie
 Pamiętaj, żeby zawsze wygenerowae pliki porównywać z poprzednimi importami (żeby odsiać duplikaty).
 #### Wzbogacanie danych: pliki wygenerowane powyższymi skryptami przetworzyć za pomocą kodu BN_update.py
 
-#### Na końcu gotowe (wzbogacone) pliki dodać do folderu Computations/ELB/aktualizacja danych w folderze z datą dzisiejszą. MG do ELB preferuje pliki w formacie mrk.
+#### Na końcu gotowe (wzbogacone) pliki dodać do folderu Computations/ELB/aktualizacja danych w folderze z datą dzisiejszą. I przekazać informację Marcinowi. (Marcin do ELB preferuje pliki w formacie mrk).
+
+### Import do PBL (pbl.ibl.waw.pl):
+
+
+
+
 
 
 
@@ -35,7 +43,7 @@ Pamiętaj, żeby zawsze wygenerowae pliki porównywać z poprzednimi importami (
 2. Wykonać kroki 2 i 3
 3. W razie potrzeby podmienić ścieżki (zmienna path).
 4. Pamiętaj, żeby zawsze wygenerowane pliki porównywać z poprzednimi (folder Computations -> ELB i plik bn_chapters_marc..., aby odsiać duplikaty). Gdy z czasem będzie więcej tych plików, należy je zmergować w jeden DataFrame i porównać z właśnie wygenerowanym (jeszcze przed zapisaniem).
-5. Pamiętaj o aktualnych danych w polu 995, np. bn_articles_marc['995'] = '\\\\$aPBL 2004-2023: czasopisma' - musi zgadzać się rok. 
+5. Pamiętaj o aktualnych danych w polu 995, np. bn_articles_marc['995'] = '\\\\$aPBL 2004-2023: czasopisma' - musi zgadzać się rok.
 
 ###### libri_project_bn_books.py:
 1. Pamiętać, żeby w zmiennej **newest_relations** (wiersz 280.) podstawić ID nowego pliku (wygenerowanego po wykonaniu kodu libri_project_bn_chapters.py). Plik powinien być dostępny w folderze **Relacje rozdziałów i książek BN** (link u góry).
