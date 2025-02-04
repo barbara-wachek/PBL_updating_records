@@ -30,13 +30,13 @@ Pamiętaj, żeby zawsze wygenerowae pliki porównywać z poprzednimi importami (
 
 ### Import do PBL (pbl.ibl.waw.pl):
 
+#### ciąg dalszy nastąpi
 
 
 
 
 
-
-##### Instrukcje szczegółowe dot. skryptów:
+### Instrukcje szczegółowe dot. skryptów:
 
 ###### libri_project_bn_chapters.py:
 1. Po wykonaniu wierszy od początku do wiersza 35., wykonać krok 1. (jest niżej, pod drugim i trzecim, wiersz 132.), aby pobrać aktualny plik z relacjami (folder: Relacje rozdziałów i książek BN).
