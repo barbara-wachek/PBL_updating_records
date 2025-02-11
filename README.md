@@ -44,6 +44,7 @@ Pamiętaj, żeby zawsze wygenerowae pliki porównywać z poprzednimi importami (
 3. W razie potrzeby podmienić ścieżki (zmienna path).
 4. Pamiętaj, żeby zawsze wygenerowane pliki porównywać z poprzednimi (folder Computations -> ELB i plik bn_chapters_marc..., aby odsiać duplikaty). Gdy z czasem będzie więcej tych plików, należy je zmergować w jeden DataFrame i porównać z właśnie wygenerowanym (jeszcze przed zapisaniem).
 5. Pamiętaj o aktualnych danych w polu 995, np. bn_articles_marc['995'] = '\\\\$aPBL 2004-2023: czasopisma' - musi zgadzać się rok.
+6. UWAGA: prawdopodobnie generuje nieprawidłowe pliki w formacie mrc. Przekonwertować mrk za pomocą konwertera Darka lub naprawić kod.
 
 ###### libri_project_bn_books.py:
 1. Pamiętać, żeby w zmiennej **newest_relations** (wiersz 280.) podstawić ID nowego pliku (wygenerowanego po wykonaniu kodu libri_project_bn_chapters.py). Plik powinien być dostępny w folderze **Relacje rozdziałów i książek BN** (link u góry).

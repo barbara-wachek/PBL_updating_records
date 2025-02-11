@@ -246,7 +246,7 @@ for my_marc_file in tqdm(my_marc_files):
             writer.write(record)    
 writer.close() 
 
-#%%650 N G [To Basia]
+#%%650 N G [To Basia] Dodanie w polu 650 informacji o gatunku i narodowosci na podstawie pliku z mapowaniem "all_650_new_karolina.xlsx"
 
 # Wczytanie Excela
 excel_path = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/all_650_new_karolina.xlsx"
@@ -315,6 +315,11 @@ def process_marc(input_file, output_mrk, output_mrc, merge_column, indicator_val
 
             # Iteracja przez rekordy MARC
             for record in reader:
+                
+                if record is None:
+                    print(f"Nieprawidłowy rekord napotkany w pozycji {total_records + 1}. Pomijanie rekordu.")
+                    continue
+                
                 total_records += 1
                 added_new_field = False  # Flaga dla rekordu
 
@@ -374,7 +379,7 @@ merged['desk_650_normalized'] = merged['desk_650'].apply(lambda x: clean_text(ex
 
 articles_path = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/libri_marc_bn_articles_2025-01-29.mrc"
 books_path = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/libri_marc_bn_books_2024-12-11.mrc"
-chapters_path = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/libri_marc_bn_chapters_2024-12-10.mrc"
+chapters_path = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/libri_marc_bn_chapters_2024-12-10 (1).mrc"
     
 # Pierwszy proces: ELB-g / podstawić odpowiedni plik w zmiennej input_file i zmień nazwę pliku w output (uwzględnij articles/books/chapters)
 process_marc(
