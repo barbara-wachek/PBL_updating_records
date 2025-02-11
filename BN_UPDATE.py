@@ -1,28 +1,16 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jan 29 12:34:02 2025
-
-@author: darek
-"""
-#BN update
-from pymarc import MARCReader,JSONReader
+#%% import
 from tqdm import tqdm
-from pymarc import Record, Field, Subfield
 import requests
 import json
-from pymarc import MARCReader
 from pymarc import parse_json_to_array
-from pymarc import TextWriter
-from pymarc import XMLWriter
-from pymarc import JSONWriter
+from pymarc import JSONWriter, MARCReader, TextWriter, Record, Field, Subfield, MARCWriter, XMLWriter
 from io import BytesIO
 import warnings
-from pymarc import MARCReader
-from pymarc import Record, Field 
 import pandas as pd
-from definicje import *
-from pymarc import MARCReader, MARCWriter
-#%% leader rozdzial artykul- korekta Basia
+import re
+
+
+#%% leader rozdzial artykul- [korekta Basia] / do zrobienia w kolejnym imporcie/ poprawić sciezki
 input_file = 'C:/Users/darek/Downloads/libri_marc_bn_articles_2024-12-09.mrc'   # plik MARC z błędnym leaderem
 output_file = 'C:/Users/darek/Downloads/libri_marc_bn_articles_2024-01-29.mrc'  # plik wyjściowy z poprawionym leaderem
 
@@ -41,7 +29,7 @@ with open(input_file, 'rb') as fh_in, open(output_file, 'wb') as fh_out:
     
     writer.close()
 
-#%% To Marcin
+#%% [To Marcin]
 
 
 #viaf_combination
@@ -148,7 +136,7 @@ for my_marc_file in tqdm(my_marc_files):
 writer.close()   
 
 
-#%% 655 wzbogacenie To Marcin Marcin przygotuje tabelkę
+#%% 655 wzbogacenie [To Marcin Marcin przygotuje tabelkę]
 my_marc_files = ["D:/Nowa_praca/08082023-Czarek_BN_update/przerobione-viaf/libri_marc_bn_chapters_2023-08-07new_viaf.mrc",
 "D:/Nowa_praca/08082023-Czarek_BN_update/przerobione-viaf/libri_marc_bn_books_2023-08-07new_viaf.mrc",
 "D:/Nowa_praca/08082023-Czarek_BN_update/przerobione-viaf/libri_marc_bn_articles_2023-08-07new_viaf.mrc"]
@@ -258,14 +246,10 @@ for my_marc_file in tqdm(my_marc_files):
             writer.write(record)    
 writer.close() 
 
-#%%650 N G To Basia
+#%%650 N G [To Basia]
 
-from pymarc import MARCReader, Field, TextWriter, MARCWriter
-import pandas as pd
-import re
-from pymarc import MARCReader, TextWriter, Field, Subfield,MARCWriter
 # Wczytanie Excela
-excel_path = "D:/Nowa_praca/update_fennica/all_650_new_karolina.xlsx"
+excel_path = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/all_650_new_karolina.xlsx"
               
 arkusz1 = pd.read_excel(excel_path, sheet_name="bn_do_laczenia")
 arkusz2 = pd.read_excel(excel_path, sheet_name="wszystko_karolina")
@@ -300,8 +284,6 @@ def extract_subfield_a(value):
 merged['desk_650_normalized'] = merged['desk_650'].apply(lambda x: clean_text(extract_subfield_a(x)))
 
 
-
-
 def is_duplicate_field(record, new_field):
     """
     Sprawdza, czy rekord MARC zawiera już pole identyczne z new_field.
@@ -322,7 +304,7 @@ def process_marc(input_file, output_mrk, output_mrc, merge_column, indicator_val
 
         # Przygotowanie writerów
         with open(output_mrk, "w", encoding="utf-8") as text_output, \
-             open(output_mrc, "wb") as binary_output:
+            open(output_mrc, "wb") as binary_output:
             
             text_writer = TextWriter(text_output)
             mrc_writer = MARCWriter(binary_output)
@@ -386,22 +368,33 @@ def process_marc(input_file, output_mrk, output_mrc, merge_column, indicator_val
 # Czyszczenie kolumny 'desk_650'
 merged['desk_650_normalized'] = merged['desk_650'].apply(lambda x: clean_text(extract_subfield_a(x)))
 
-# Pierwszy proces: ELB-g
+
+
+#Dla każdego pliku mrc z danymi z BN (3 pliki) przeprowadzić poniższe procesy/ Pamiętać o aktualizacji sciezek plików! Mają to być ostatnio pobrane rekordy!
+
+articles_path = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/libri_marc_bn_articles_2025-01-29.mrc"
+books_path = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/libri_marc_bn_books_2024-12-11.mrc"
+chapters_path = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/libri_marc_bn_chapters_2024-12-10.mrc"
+    
+# Pierwszy proces: ELB-g / podstawić odpowiedni plik w zmiennej input_file i zmień nazwę pliku w output (uwzględnij articles/books/chapters)
 process_marc(
-    input_file="D:/Nowa_praca/update_fennica/uniqueFennica.mrc",
-    output_mrk="wynikowy_elb_g.mrk",
-    output_mrc="wynikowy_elb_g.mrc",
+    input_file= chapters_path,
+    output_mrk="./data/wynikowy_elb_chapters_g.mrk",
+    output_mrc="./data/wynikowy_elb_chapters_g.mrc",
     merge_column="KPto650",
     indicator_value="ELB-g"
 )
 
-# Drugi proces: ELB-n (bazując na wynikowym pliku z ELB-g)
+# Drugi proces: ELB-n (bazując na wynikowym pliku z ELB-g) / podstawić odpowiedni plik w zmiennej input_file (plik wygenerowany wyzej)
 process_marc(
-    input_file="wynikowy_elb_g.mrc",
-    output_mrk="wynikowy_elb_n_g.mrk",
-    output_mrc="wynikowy_elb_n_g.mrc",
+    input_file="./data/wynikowy_elb_chapters_g.mrc", 
+    output_mrk="./data/wynikowy_elb_chapters_n_g.mrk",
+    output_mrc="./data/wynikowy_elb_chapters_n_g.mrc",
     merge_column="nationalityto650",
     indicator_value="ELB-n")
+
+
+
 
 
 #%%correct field "d"  ujednolicanie dat robi Marcin
