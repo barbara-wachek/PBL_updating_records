@@ -11,8 +11,8 @@ import re
 
 
 #%% leader rozdzial artykul- [korekta Basia] / do zrobienia w kolejnym imporcie/ poprawić sciezki
-input_file = 'C:/Users/darek/Downloads/libri_marc_bn_articles_2024-12-09.mrc'   # plik MARC z błędnym leaderem
-output_file = 'C:/Users/darek/Downloads/libri_marc_bn_articles_2024-01-29.mrc'  # plik wyjściowy z poprawionym leaderem
+input_file = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/2025-03-04 (poprawki LDR w starych)/pl_bn_articles2_2024-02-08.mrc"  # plik MARC z błędnym leaderem
+output_file = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/2025-03-04 (poprawki LDR w starych)/pl_bn_articles2_2025-03-04.mrc" # plik wyjściowy z poprawionym leaderem
 
 with open(input_file, 'rb') as fh_in, open(output_file, 'wb') as fh_out:
     reader = MARCReader(fh_in)
