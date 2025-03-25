@@ -10,19 +10,20 @@ import pandas as pd
 import re
 
 
-#%% leader rozdzial artykul- [korekta Basia] / do zrobienia w kolejnym imporcie/ poprawić sciezki
-input_file = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/2025-03-04 (poprawki LDR w starych)/pl_bn_articles2_2024-02-08.mrc"  # plik MARC z błędnym leaderem
-output_file = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/2025-03-04 (poprawki LDR w starych)/pl_bn_articles2_2025-03-04.mrc" # plik wyjściowy z poprawionym leaderem
+#%% leader rozdzial artykul- [korekta Basia] / do zrobienia w kolejnym imporcie/ poprawić sciezki / 
+#Zmiana kodu, aby pokrywał on rowniez przypadki, gdy w LDR nie jest 'a' na 7 pozycji, ale cos innego, co rowniez nie jest artykulem ('b')
+input_file = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/2025-03-25 (do poprawy LDR)/pl_bn_articles-2025-02-11(do poprawy LDR).mrc"  # plik MARC z błędnym LDR
+output_file = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/2025-03-25 (do poprawy LDR)/pl_bn_articles-2025-02-11_(poprawione_2025-03-25).mrc" # plik wyjściowy z poprawionym leaderem
 
 with open(input_file, 'rb') as fh_in, open(output_file, 'wb') as fh_out:
     reader = MARCReader(fh_in)
     writer = MARCWriter(fh_out)
     
     for record in reader:
-        # Sprawdź, czy w 7 pozycji leadera (indeks 7) jest 'a'
-        if record.leader[7] == 'a':
-            # Nadpisujemy tylko siódmą pozycję w leaderze
-            record.leader = record.leader[:7] + 'b' + record.leader[8:]
+        # # Sprawdź, czy w 7 pozycji leadera (indeks 7) nie ma 'b' (Artykuł)
+        # if record.leader[7] != 'b':
+        # Nadpisujemy tylko siódmą pozycję w leaderze
+        record.leader = record.leader[:7] + 'b' + record.leader[8:]
         
         # Zapisujemy rekord z poprawionym leaderem
         writer.write(record)
