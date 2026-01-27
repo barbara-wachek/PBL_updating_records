@@ -7,6 +7,8 @@ import glob
 from dask import delayed, dataframe as dd
 from tqdm import tqdm
 from collections import Counter
+from pathlib import Path
+
 
 def year(row, field):
     if row['field'] == field:
@@ -19,11 +21,21 @@ def year(row, field):
     
 #Change format: mrc to mrk 
 
-path = "C:\\Users\\Barbara Wachek\\Documents\\Python Scripts\\PBL_updating_records\\data\\2024-12-05\\"
-files = [f for f in glob.glob(path + '*.mrc', recursive=True)]
+# path = "C:\\Users\\barba\\Desktop\\PBL_importy\\BN_2026-01-27"
+# files = [f for f in glob.glob(path + '*.mrc', recursive=True)]
+# for file_path in tqdm(files):
+#     path_mrk = file_path.replace('.mrc', '.mrk')
+#     mrc_to_mrk(file_path, path_mrk)
+
+
+#New version BW
+path = Path(r"C:\\Users\\barba\\Desktop\\PBL_importy\\BN_2026-01-27")
+files = list(path.glob("*.mrc"))
+
 for file_path in tqdm(files):
-    path_mrk = file_path.replace('.mrc', '.mrk')
+    path_mrk = file_path.with_suffix(".mrk")
     mrc_to_mrk(file_path, path_mrk)
+
 
 #%%
 
