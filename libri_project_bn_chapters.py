@@ -34,7 +34,6 @@ gauth = GoogleAuth()
 gauth.LocalWebserverAuth()
 drive = GoogleDrive(gauth)
 
-
 #%% 2. pobranie pliku z relacjami z folderu: https://drive.google.com/drive/folders/1aATJM13muNYUB6CGhvuPMPtOzjT5XE8j  - Relacje rozdziałów i książek BN
 newest_relations = '1nknxNCQZurZLbNBOc8yO20H2bWt4RaV4X4wWX92RhOE' #PODMIENIC ID Arkusza, który będzie z kroku 1 (linia 131-638); powinien być w folerze Relacje rozdziałów i książek BN
 
@@ -47,8 +46,8 @@ chapters_id = tuple(chapters['id'].to_list())
 
 #%% 3. wydobycie poprawnych rozdziałów na podstawie pliku z relacjami – jeśli bazujemy na tej samej liście relacji, jeśli nie, trzeba wykonać krok nr 1
 
-path = r"C:\Users\Barbara Wachek\Documents\Python Scripts\PBL_updating_records\data\2024-12-05\\"
-files = [file for file in glob.glob(path + '*.mrk', recursive=True)]
+path = r"C:\\Users\\barba\\Documents\\GitHub\\PBL_updating_records\\data\\2026-01-27"
+files = [file for file in glob.glob(path + '\\*.mrk', recursive=True)]
 
 encoding = 'utf-8'
 new_list = []
@@ -95,30 +94,52 @@ df = df.reindex(columns=fields)
 # df.to_excel('BN_chapters.xlsx', index=False)
 # #zobaczyć, co się dzieje z 005 - notacja naukowa
 # df = pd.read_excel('BN_chapters.xlsx')
-df['995'] = '\\\\$aPBL 2013-2023: rozdziały książek'
+df['995'] = '\\\\$aPBL 2013-2026: rozdziały książek'
+
+#%% Porównanie z ostatnio wygenerowymi plikami bn_chapters_marc (aby odsiać duplikaty) folder ELB w Computations. Wziąć wszystkie poprzednie pliki (old1, old2 itd.) Przy kolejnym importcie uwzględnić włanie generowany plik. 
+
+# Wczytanie starych plików
+old1 = pd.read_excel(r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\old_imports\bn_chapters_marc_2021-07-01.xlsx")
+old2 = pd.read_excel(r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\old_imports\bn_chapters_marc_2024-12-06.xlsx")
+
+# Tworzymy zbiór ID starych rekordów
+old_ids = set(old1['001'].dropna().tolist()) | set(old2['001'].dropna().tolist())
+
+# Tworzymy zbiór ID nowych rekordów
+new_ids = set(df['001'].dropna().tolist())
+
+# Wyłuskanie tylko rekordów nowych (których nie było w żadnym ze starych plików)
+list_new_records_only_ID = list(new_ids - old_ids)
+
+# Filtrowanie nowego DataFrame
+bn_chapters_marc = df[df['001'].isin(list_new_records_only_ID)].copy()
+
+# Usunięcie duplikatów na wszelki wypadek
+bn_chapters_marc.drop_duplicates(subset='001', inplace=True)
+
+print(f"Liczba nowych rekordów: {len(bn_chapters_marc)}")
 
 
-#Porównanie z ostatnio wygenerowym plikiem bn_chapters_marc z 2021 roku (aby odsiać duplikaty) folder ELB w Computations
-bn_chapters_marc_old = pd.read_excel(r"C:\Users\Barbara Wachek\Documents\Python Scripts\PBL_updating_records\data\old_imports\bn_chapters_marc_2021-07-01.xlsx", sheet_name='Sheet1')
+# #Stworzenie list z ID z obu df: starego i nowego:
+# list_bn_chapters_marc_old_ID = set(bn_chapters_marc_old['001'].dropna().tolist())
+# list_bn_chapters_marc_ID = set(df['001'].dropna().tolist())
 
-#Stworzenie list z ID z obu df: starego i nowego:
-list_bn_chapters_marc_old_ID = set(bn_chapters_marc_old['001'].dropna().tolist())
-list_bn_chapters_marc_ID = set(df['001'].dropna().tolist())
+# list_new_records_only_ID = list(list_bn_chapters_marc_ID - list_bn_chapters_marc_old_ID)
 
-list_new_records_only_ID = list(list_bn_chapters_marc_ID - list_bn_chapters_marc_old_ID)
+# #Filtrowanie bn_chapters_marc_total, aby uwzględnić tylko rekordy nowe (których nie zaimportowano we wcześniejszym imporcie)
 
-#Filtrowanie bn_chapters_marc_total, aby uwzględnić tylko rekordy nowe (których nie zaimportowano we wcześniejszym imporcie)
+# bn_chapters_marc = df[df['001'].isin(list_new_records_only_ID)]
+# bn_chapters_marc.drop_duplicates
 
-bn_chapters_marc = df[df['001'].isin(list_new_records_only_ID)]
-bn_chapters_marc.drop_duplicates
+# # len(set(bn_chapters_marc['001']))
 
-# len(set(bn_chapters_marc['001']))
+
 
 
 
 #%% Zapisanie plików
 
-bn_chapters_marc.to_excel('data/bn_chapters_marc.xlsx', index=False)
+bn_chapters_marc.to_excel(f'data/bn_chapters_marc_{year}-{month}-{day}.xlsx', index=False)
 
 try:
     bn_chapters_marc = pd.merge(bn_chapters_marc.drop(columns='856'), chapters.drop(columns='type'), how='left', left_on='001', right_on='id').drop(columns='id')
@@ -132,7 +153,7 @@ mrc_to_mrk(f'data/libri_marc_bn_chapters_{year}-{month}-{day}.mrc', f'data/libri
 # wczytanie pliku z błędami
 # rozwiązanie kwestii wielu tomów i tytułów tomów
 
-with open(f'libri_bn_chapters_errors_{year}-{month}-{day}.txt', encoding='utf8') as file:
+with open(f'data/libri_bn_chapters_errors_{year}-{month}-{day}.txt', encoding='utf8') as file:
     errors = file.readlines()
     
 errors = [ast.literal_eval(re.findall('\{.+\}', e)[0]) for e in errors if e != '\n']
@@ -141,11 +162,6 @@ if errors:
     df2 = pd.DataFrame(errors)
     df_to_mrc(df2, '❦', f'data/libri_marc_bn_chapters2_{year}-{month}-{day}.mrc', f'data/libri_bn_chapters2_errors_{year}-{month}-{day}.txt')
     mrc_to_mrk(f'data/libri_marc_bn_chapters2_{year}-{month}-{day}.mrc', f'data/libri_marc_bn_chapters2_{year}-{month}-{day}.mrk')
-
-
-
-
-
 
 
 
@@ -184,10 +200,10 @@ deskryptory_08_2023 = set(deskryptory_08_2023.loc[deskryptory_08_2023['ok'] == '
 
 #%% BN data harvesting for chapters
 
-years = range(1989,2024)
+years = range(1989,2026)
    
-path = r"C:\Users\Barbara Wachek\Documents\Python Scripts\PBL_updating_records\data\2024-12-05\\"
-files = [file for file in glob.glob(path + '*.mrk', recursive=True)]
+path = r"C:\\Users\\barba\\Documents\\GitHub\\PBL_updating_records\\data\\2026-01-27"
+files = [file for file in glob.glob(path + '\\*.mrk', recursive=True)]
 
 encoding = 'utf-8'
 new_list = []
@@ -283,10 +299,10 @@ df = df[~df['001'].isin(chapters_with_missing_books)]
 
 #%% BN all books harvesting
 
-years = range(1989,2024)
+years = range(1989,2026)
    
-path = r"C:\\Users\\Barbara Wachek\\Documents\\Python Scripts\\PBL_updating_records\\data\\2024-12-05\\"
-files = [file for file in glob.glob(path + '*.mrk', recursive=True)]
+path = r"C:\\Users\\barba\\Documents\\GitHub\\PBL_updating_records\\data\\2026-01-27"
+files = [file for file in glob.glob(path + '\\*.mrk', recursive=True)]
 
 encoding = 'utf-8'
 new_list = []
@@ -379,8 +395,8 @@ chapters_and_books = pd.concat([chapters_and_books.drop(columns='book title'), c
 
 book_ids = set(chapters_and_books['book id'].to_list())
 
-path = r"C:\\Users\\Barbara Wachek\\Documents\\Python Scripts\\PBL_updating_records\\data\\2024-12-05\\"
-files = [file for file in glob.glob(path + '*.mrk', recursive=True)]
+path = r"C:\\Users\\barba\\Documents\\GitHub\\PBL_updating_records\\data\\2026-01-27"
+files = [file for file in glob.glob(path + '\\*.mrk', recursive=True)]
 
 encoding = 'utf-8'
 new_list = []

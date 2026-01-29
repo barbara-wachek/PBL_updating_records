@@ -7,7 +7,7 @@ import pandasql
 import json
 import requests
 import io
-import cx_Oracle
+#import cx_Oracle
 import regex as re
 from functools import reduce
 import glob
@@ -144,10 +144,10 @@ deskryptory_08_2023 = set(deskryptory_08_2023.loc[deskryptory_08_2023['ok'] == '
 #%% BN data extraction
 
 # path = r"D:\IBL\BN\bn_all\2023-07-20/"
-path = r'C:/Users/Barbara Wachek/Documents/Python Scripts/PBL_updating_records/data/2024-12-05/'
+path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-01-27"
 
-files = [file for file in glob.glob(path + '*.mrk', recursive=True)]
-years = range(2004,2024)
+files = [file for file in glob.glob(path + '\\*.mrk', recursive=True)]
+years = range(2004, 2026)
 encoding = 'utf-8'
 new_list = []
 for file_path in tqdm(files):
@@ -271,24 +271,34 @@ multiple_poems = multiple_poems.drop(columns='idx')
 
 bn_articles_marc = pd.concat([bn_articles_marc, multiple_poems]).reset_index(drop=True).sort_values('001')
 
-#Porównanie z ostatnio wygenerowym plikiem bn_articles_marc z 2021 roku (aby odsiać duplikaty) folder ELB w Computations
-bn_articles_marc_old = pd.read_excel(r"C:\Users\Barbara Wachek\Documents\Python Scripts\PBL_updating_records\data\old_imports\bn_articles_marc_2021-07-01.xlsx", sheet_name='Sheet1')
-#Stworzenie list z ID z obu df: starego i nowego:
-list_bn_articles_marc_old_ID = set(bn_articles_marc_old['001'].dropna().tolist())
-list_bn_articles_marc_ID = set(bn_articles_marc['001'].dropna().tolist())
+#%%Porównanie z ostatnio wygenerowymi plikami bn_articles_marc z 2021 i 2024 roku (aby odsiać duplikaty) folder ELB w Computations (uwzględnić wszystkie importy od 2021)
+#bn_articles_marc_old = pd.read_excel(r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\bn_articles_marc.xlsx", sheet_name='Sheet1')
 
-list_new_records_only_ID = list(list_bn_articles_marc_ID - list_bn_articles_marc_old_ID)
+bn_articles_marc_old1 = pd.read_excel(r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\old_imports\bn_articles_marc_2021-07-01.xlsx", sheet_name='Sheet1')
+bn_articles_marc_old2 = pd.read_excel(r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\old_imports\bn_articles_marc_2024-12-06.xlsx", sheet_name='Sheet1')
 
-#Filtrowanie bn_books_marc_total, aby uwzględnić tylko rekordy nowe (których nie zaimportowano we wcześniejszym imporcie)
+#Stworzenie list z ID z obu df: starych i nowego:
+old_ids = set(bn_articles_marc_old1['001'].dropna().tolist()) | set(bn_articles_marc_old2['001'].dropna().tolist())
+    
+# Tworzymy zestaw ID nowych rekordów
+new_ids = set(bn_articles_marc['001'].dropna().tolist())
 
-bn_articles_marc = bn_articles_marc[bn_articles_marc['001'].isin(list_new_records_only_ID)]
-bn_articles_marc.drop_duplicates
+# Wyłuskanie tylko tych nowych rekordów, których nie było w żadnym z dwóch starych plików
+list_new_records_only_ID = list(new_ids - old_ids)
 
-# len(set(bn_articles_marc['001']))
+# Filtrowanie nowego df
+bn_articles_marc = bn_articles_marc[bn_articles_marc['001'].isin(list_new_records_only_ID)].copy()
 
+# Usunięcie duplikatów w nowym df (na wszelki wypadek)
+bn_articles_marc = bn_articles_marc.drop_duplicates(subset='001')
 
+print(f"Liczba nowych rekordów: {len(bn_articles_marc)}")    
+   
+    
 
-bn_articles_marc.to_excel('data/bn_articles_marc.xlsx', index=False)
+#%% Zapisanie 
+
+bn_articles_marc.to_excel(f'data/bn_articles_marc_{year}-{month}-{day}.xlsx', index=False)
 
 df_to_mrc(bn_articles_marc, '❦', f'data/libri_marc_bn_articles_{year}-{month}-{day}.mrc', f'data/libri_bn_articles_errors_{year}-{month}-{day}.txt')
 mrc_to_mrk(f'data/libri_marc_bn_articles_{year}-{month}-{day}.mrc', f'data/libri_marc_bn_articles_{year}-{month}-{day}.mrk')
