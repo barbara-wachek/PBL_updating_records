@@ -1,4 +1,4 @@
-# Instrukcja pobierania i przetwarzania danych z BN do PBL
+# Instrukcja pobierania i przetwarzania danych z BN do ELB
 
 ## Do pobrania:
 - MarcEdit: https://marcedit.reeset.net/downloads
@@ -30,13 +30,6 @@ Pamiętaj, żeby zawsze wygenerowae pliki porównywać z poprzednimi importami (
 
 #### Na końcu gotowe (wzbogacone) pliki dodać do folderu Computations/ELB/aktualizacja danych w folderze z datą dzisiejszą. I przekazać informację Marcinowi. (Marcin do ELB preferuje pliki w formacie mrk).
 
-### Import do PBL (pbl.ibl.waw.pl):
-
-#### ciąg dalszy nastąpi
-
-
-
-
 
 ### Instrukcje szczegółowe dot. skryptów:
 
@@ -56,3 +49,9 @@ Pamiętaj, żeby zawsze wygenerowae pliki porównywać z poprzednimi importami (
 ###### BN_UPDATE.py:
 1. Zwrócić uwagę na komentarze na początku każdej sekcji kodu. Tam jest opisane, które zadania robi osoba ze strony PBL (Basia), a które osoba ze strony ELB (Marcin). W przyszłości ten podział może się zmienić
 2. Pliki niezbędne do wykonania kodu: all_650_new_karolina.xlsx, Major_genre_wszystko.xlsx. Dostępne są tutaj: https://drive.google.com/drive/folders/1XxhJRvzdYlSR-MCy-xN8uUam2OU0p1tn?usp=drive_link
+
+
+
+### Import do PBL (pbl.ibl.waw.pl):
+#### Repozytorium PBL-converter (tam szczegóły)
+Po dostarczeniu plików do ELB zostają tam one przetworzone i wzbogacone, a następnie są generowane w formacie json i wtedy dopiero można przejść do etapu PBL-converter
