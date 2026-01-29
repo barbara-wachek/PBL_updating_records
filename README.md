@@ -18,7 +18,8 @@ https://data.bn.org.pl/databases
 #### W MarcEdit dzielimy dużą paczkę BN i przygotowujemy mniejsze pliki:
 Tools (menu na pasku u góry) → MARC Processing Tools → MARCSplit → podzielić na paczki po 200k
 #### Konwersja plików .mrc na .mrk - kod marc_to_table.py (tylko pierwsza funkcja)
-#### Pliki w formacie .mrk wrzucamy do folderu \data i do nowego folderu z nazwą w formacie YYYY-MM-DD
+#### Pliki w formacie .mrk (pobrane z BN) wrzucamy do folderu \data i do nowego folderu z nazwą w formacie YYYY-MM-DD
+#### W folderze data tworzymy lub uzupełniamy folder old_imports - będą tu potrzebne pliki poprzednio wygenerowane, które sa dostępne w folderze Computations/ELB/Aktualizacja danych (patrz Ważne foldery/pliki)
 
 #### Uruchamiamy skrypty w następującej kolejności:
 1. chapters - libri_project_bn_chapters.py
