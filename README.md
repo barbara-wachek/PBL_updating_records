@@ -7,7 +7,7 @@
 
 - Relacje rozdziałów i książek BN: https://drive.google.com/drive/folders/1aATJM13muNYUB6CGhvuPMPtOzjT5XE8j
 - Aktualizacja danych (do przechowywania wygenerowanych plików): https://drive.google.com/drive/folders/1r5JEo0XgSJokQaXZ-rmXl8od7JA_KYca
-
+- Plik google_drive_research_folders.py: https://drive.google.com/file/d/1TUbEu4iYGp2URsgq2YCXkIyzMftfhPF_/view?usp=drive_link
 
 
 ## Kolejność prac:
