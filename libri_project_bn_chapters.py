@@ -34,8 +34,12 @@ gauth = GoogleAuth()
 gauth.LocalWebserverAuth()
 drive = GoogleDrive(gauth)
 
+#%% INSTRUKCJA
+#Jesli chcemy pobrać nowy plik z relacjami to najpierw wykonujemy kod od kroku 1. Jesli juz mam aktualny plik z relacjami w folderze Relacje rozdziałów i książek BN, to przechodzimy od razu do kroku 2
+
 #%% 2. pobranie pliku z relacjami z folderu: https://drive.google.com/drive/folders/1aATJM13muNYUB6CGhvuPMPtOzjT5XE8j  - Relacje rozdziałów i książek BN
-newest_relations = '1nknxNCQZurZLbNBOc8yO20H2bWt4RaV4X4wWX92RhOE' #PODMIENIC ID Arkusza, który będzie z kroku 1 (linia 131-638); powinien być w folerze Relacje rozdziałów i książek BN
+newest_relations = '1SiTF83NEhltUql5327oWjvPywn3jypoIF06Q-c044hI' #PODMIENIC ID Arkusza, który będzie z kroku 1 (linia 131-638); powinien zostać wrzucony po wykonaniu kodu do foleru 
+#Relacje rozdziałów i książek BN
 
 
 chapters_relations_sheet = gc.open_by_key(newest_relations)
@@ -118,21 +122,6 @@ bn_chapters_marc = df[df['001'].isin(list_new_records_only_ID)].copy()
 bn_chapters_marc.drop_duplicates(subset='001', inplace=True)
 
 print(f"Liczba nowych rekordów: {len(bn_chapters_marc)}")
-
-
-# #Stworzenie list z ID z obu df: starego i nowego:
-# list_bn_chapters_marc_old_ID = set(bn_chapters_marc_old['001'].dropna().tolist())
-# list_bn_chapters_marc_ID = set(df['001'].dropna().tolist())
-
-# list_new_records_only_ID = list(list_bn_chapters_marc_ID - list_bn_chapters_marc_old_ID)
-
-# #Filtrowanie bn_chapters_marc_total, aby uwzględnić tylko rekordy nowe (których nie zaimportowano we wcześniejszym imporcie)
-
-# bn_chapters_marc = df[df['001'].isin(list_new_records_only_ID)]
-# bn_chapters_marc.drop_duplicates
-
-# # len(set(bn_chapters_marc['001']))
-
 
 
 

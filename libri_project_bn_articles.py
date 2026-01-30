@@ -143,7 +143,6 @@ deskryptory_08_2023 = set(deskryptory_08_2023.loc[deskryptory_08_2023['ok'] == '
 
 #%% BN data extraction
 
-# path = r"D:\IBL\BN\bn_all\2023-07-20/"
 path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-01-27"
 
 files = [file for file in glob.glob(path + '\\*.mrk', recursive=True)]

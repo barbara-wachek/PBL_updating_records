@@ -34,7 +34,7 @@ def bn_harvesting(start_year, end_year, path, encoding, bibliographic_kind, cond
     years = range(start_year, end_year+1)
     # path = "C:\\Users\\Barbara Wachek\\Documents\\Python Scripts\\PBL_updating_records\\data\\2024-12-05\\"
     encoding = 'utf-8'
-    files = [file for file in glob.glob(path + '*.mrk', recursive=True)]
+    files = [file for file in glob.glob(path + '\\*.mrk', recursive=True)]
     new_list = []
     for file_path in tqdm(files):
         # file_path = files[-1]
@@ -203,10 +203,10 @@ drive = GoogleDrive(gauth)
 
 #%% years range
 starting_year = 2013
-ending_year = 2024
+ending_year = 2026
 
 #%% path to the newest BN dump
-path = "C:\\Users\\Barbara Wachek\\Documents\\Python Scripts\\PBL_updating_records\\data\\2024-12-05\\"
+path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-01-27"
 
 #%% deskryptory BN do wydobycia rekordów
 bn_deskryptory1 = gsheet_to_df('1b_DWfaMsi_10xKR8fg-0Qpzvm91p6gx3lwjgSy0zI1Q', 'deskryptory_do_filtrowania')
@@ -277,7 +277,7 @@ dydaktyka_655 = list(set([re.sub('\$y.*', '', e[4:]).replace('$2DBN', '') for su
 bn_relations = gsheet_to_df('1WPhir3CwlYre7pw4e76rEnJq5DPvVZs3_828c_Mqh9c', 'relacje_rev_book').rename(columns={'id':'001'})
 bn_relations = bn_relations[bn_relations['typ'] == 'book'].rename(columns={'id':'001'})
 
-newest_relations = '1nknxNCQZurZLbNBOc8yO20H2bWt4RaV4X4wWX92RhOE'
+newest_relations = '1SiTF83NEhltUql5327oWjvPywn3jypoIF06Q-c044hI' #TU PODMIENIĆ
 
 bn_books_chapters = gsheet_to_df(newest_relations, 'relations')
 bn_books_chapters = bn_books_chapters[bn_books_chapters['type'] == 'book'].rename(columns={'id':'001'})
@@ -321,6 +321,7 @@ bn_harvested_df = bn_harvested_df[(bn_harvested_df['380'].str.lower().str.contai
 
 #%% dobre gatunki literackie
 #jeśli coś ma gatunek literacki, to jest z automatu dobre
+
 dobre1_df = bn_harvested_df[(bn_harvested_df['gatunki literackie'] == True) |
                             ((bn_harvested_df['650'].str.lower().str.contains('filolog|literatur|literac|pisar|poezj')) & bn_harvested_df['650'].notnull()) |
                             ((bn_harvested_df['655'].str.lower().str.contains('filolog|literatur|literac|pisar|poezj')) & bn_harvested_df['655'].notnull())]
@@ -441,7 +442,8 @@ bn_harvested = bn_harvested[~bn_harvested['001'].isin(ids)]
 
 #%%
 
-bn_cz_mapping = pd.read_excel(r"C:\Users\Barbara Wachek\Documents\Python Scripts\PBL_updating_records\data\bn_cz_mapping.xlsx")
+bn_cz_mapping = pd.read_excel(r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\bn_cz_mapping.xlsx")
+
 fields_to_remove = bn_cz_mapping[bn_cz_mapping['cz'] == 'del']['bn'].to_list()
 fields_to_remove = [e if e[0] != 'X' else e[1:] for e in fields_to_remove]
 
@@ -460,26 +462,44 @@ bn_books_marc_total['008'] = bn_books_marc_total['008'].str.replace('\\', ' ')
 if bn_books_marc_total['009'].dtype == np.float64:
         bn_books_marc_total['009'] = bn_books_marc_total['009'].astype(np.int64)
         
-bn_books_marc_total['995'] = '\\\\$aPBL 2013-2023: książki'
+bn_books_marc_total['995'] = '\\\\$aPBL 2013-2026: książki'  #TU ZMIEŃ ROK KOŃCOWY, aby był bieżący
 
-#Porównanie z ostatnio wygenerowym plikiem bn_books_marc z 2021 roku (aby odsiać duplikaty) folder ELB w Computations
-bn_books_marc_old = pd.read_excel(r"C:\Users\Barbara Wachek\Documents\Python Scripts\PBL_updating_records\data\old_imports\bn_books_marc_2021-07-01.xlsx", sheet_name='Sheet1')
-#Stworzenie list z ID z obu df: starego i nowego:
-list_bn_books_marc_old_ID = set(bn_books_marc_old['001'].dropna().tolist())
-list_bn_books_marc_total_ID = set(bn_books_marc_total['001'].dropna().tolist())
 
-list_new_records_only_ID = list(list_bn_books_marc_total_ID - list_bn_books_marc_old_ID)
 
-#Filtrowanie bn_books_marc_total, aby uwzględnić tylko rekordy nowe (których nie zaimportowano we wcześniejszym imporcie)
+#%%Porównanie z ostatnio wygenerowym plikiem bn_books_marc z 2021 roku (aby odsiać duplikaty) folder ELB w Computations. Dodać wszystkie poprzednie pliki i je połączyć dla porówniania z nowym
 
-bn_books_marc_final = bn_books_marc_total[bn_books_marc_total['001'].isin(list_new_records_only_ID)]
-bn_books_marc_final.drop_duplicates
+bn_books_marc_old1 = pd.read_excel(
+    r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\old_imports\bn_books_marc_2021-07-01.xlsx",
+    sheet_name='Sheet1'
+)
 
-# len(set(bn_books_marc_final['001']))
+bn_books_marc_old2 = pd.read_excel(
+    r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\old_imports\bn_books_marc_2024-12-06.xlsx",
+    sheet_name='Sheet1'
+)
+
+# Stworzenie zestawu ID ze starych plików
+old_ids = set(bn_books_marc_old1['001'].dropna().tolist()) | set(bn_books_marc_old2['001'].dropna().tolist())
+
+# Zestaw ID z nowego df
+new_ids = set(bn_books_marc_total['001'].dropna().tolist())
+
+# Wyłuskanie tylko tych rekordów, których nie było w żadnym ze starych plików
+list_new_records_only_ID = list(new_ids - old_ids)
+
+# Filtrowanie nowego df
+bn_books_marc_final = bn_books_marc_total[bn_books_marc_total['001'].isin(list_new_records_only_ID)].copy()
+
+# Usunięcie duplikatów (na wszelki wypadek)
+bn_books_marc_final = bn_books_marc_final.drop_duplicates(subset='001')
+
+print(f"Liczba nowych rekordów: {len(bn_books_marc_final)}")
+
+
 
 #%% Zapisanie do xlsx i mrc i przekształcenie mrc na mrk
 
-bn_books_marc_final.to_excel('data/bn_books_marc.xlsx', index=False)
+bn_books_marc_final.to_excel(f'data/bn_books_marc_{year}-{month}-{day}.xlsx', index=False)
 
 df_to_mrc(bn_books_marc_final, '❦', f'data/libri_marc_bn_books_{year}-{month}-{day}.mrc', f'data/libri_bn_books_errors_{year}-{month}-{day}.txt')
 mrc_to_mrk(f'data/libri_marc_bn_books_{year}-{month}-{day}.mrc', f'data/libri_marc_bn_books_{year}-{month}-{day}.mrk')
