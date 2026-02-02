@@ -12,8 +12,43 @@ import re
 
 #%% leader rozdzial artykul- [korekta Basia] / do zrobienia w kolejnym imporcie/ poprawić sciezki / 
 #Zmiana kodu, aby pokrywał on rowniez przypadki, gdy w LDR nie jest 'a' na 7 pozycji, ale cos innego, co rowniez nie jest artykulem ('b')
-input_file = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/2025-03-25 (do poprawy LDR)/pl_bn_articles-2025-02-11(do poprawy LDR).mrc"  # plik MARC z błędnym LDR
-output_file = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/2025-03-25 (do poprawy LDR)/pl_bn_articles-2025-02-11_(poprawione_2025-03-25).mrc" # plik wyjściowy z poprawionym leaderem
+input_file = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\libri_marc_bn_articles_2026-01-29.mrc"  
+output_mrc = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-01-29 (do wysłania)\libri_marc_bn_articles_2026-01-29_preprocessing.mrc" 
+output_mrk = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-01-29 (do wysłania)\libri_marc_bn_articles_2026-01-29_preprocessing.mrk" 
+
+# input_file = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/2025-03-25 (do poprawy LDR)/pl_bn_articles-2025-02-11(do poprawy LDR).mrc"  # plik MARC z błędnym LDR
+# output_file = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/2025-03-25 (do poprawy LDR)/pl_bn_articles-2025-02-11_(poprawione_2025-03-25).mrc"
+
+
+# #Ponizej kod uzyty w 02.2026, bo zapomniałam zmienić datę w nazwie kolekcji
+
+# with open(input_file, 'rb') as fh_in, \
+#      open(output_mrc, 'wb') as fh_out_mrc, \
+#      open(output_mrk, 'w', encoding='utf-8') as fh_out_mrk:
+
+#     reader = MARCReader(fh_in)
+#     writer_mrc = MARCWriter(fh_out_mrc)
+#     writer_mrk = TextWriter(fh_out_mrk)
+
+#     for record in reader:
+#         # Poprawka leadera
+#         record.leader = record.leader[:7] + 'b' + record.leader[8:]
+
+#         # Sprawdzamy pole 995$a
+#         for field in record.get_fields('995'):
+#             if field['a'] and "PBL 2004-2023: czasopisma" in field['a']:
+#                 field['a'] = field['a'].replace("2023", "2026")
+
+#         # Zapis do obu formatów
+#         writer_mrc.write(record)
+#         writer_mrk.write(record)
+
+#     writer_mrc.close()
+#     writer_mrk.close()
+
+
+
+
 
 with open(input_file, 'rb') as fh_in, open(output_file, 'wb') as fh_out:
     reader = MARCReader(fh_in)
@@ -250,7 +285,7 @@ writer.close()
 #%%650 N G [To Basia] Dodanie w polu 650 informacji o gatunku i narodowosci na podstawie pliku z mapowaniem "all_650_new_karolina.xlsx"
 
 # Wczytanie Excela
-excel_path = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/all_650_new_karolina.xlsx"
+excel_path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\all_650_new_karolina.xlsx"
               
 arkusz1 = pd.read_excel(excel_path, sheet_name="bn_do_laczenia")
 arkusz2 = pd.read_excel(excel_path, sheet_name="wszystko_karolina")
@@ -376,13 +411,20 @@ merged['desk_650_normalized'] = merged['desk_650'].apply(lambda x: clean_text(ex
 
 
 
+
+
 #Dla każdego pliku mrc z danymi z BN (3 pliki) przeprowadzić poniższe procesy/ Pamiętać o aktualizacji sciezek plików! Mają to być ostatnio pobrane rekordy!
 
-articles_path = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/libri_marc_bn_articles_2025-01-29.mrc"
-books_path = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/libri_marc_bn_books_2024-12-11.mrc"
-chapters_path = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/libri_marc_bn_chapters_2024-12-10 (1).mrc"
+articles_path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-01-29 (do wysłania)\libri_marc_bn_articles_2026-01-29_preprocessing.mrc" #tutaj dać plik który został naprawiony w pierwszym kroku (LDR)
+books_path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\libri_marc_bn_books_2026-01-30.mrc"
+chapters_path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\libri_marc_bn_chapters_2026-01-30.mrc"
     
+
+
+
+
 # Pierwszy proces: ELB-g / podstawić odpowiedni plik w zmiennej input_file i zmień nazwę pliku w output (uwzględnij articles/books/chapters)
+
 process_marc(
     input_file= chapters_path,
     output_mrk="./data/wynikowy_elb_chapters_g.mrk",
