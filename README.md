@@ -13,6 +13,7 @@
 - Deskryptory BN 655: https://docs.google.com/spreadsheets/d/19EiO8RrjtcVBZOt-VncWgNvibSqYGYTU3nR0_IUmCas/edit?gid=0#gid=0
 - BN-Oracle środowisko: https://drive.google.com/drive/u/1/folders/1xzqGIfZllmXXTh2dJABeHbRPFAM34nbw 
 - libri-relacje: https://docs.google.com/spreadsheets/d/1WPhir3CwlYre7pw4e76rEnJq5DPvVZs3_828c_Mqh9c/edit?gid=225728403#gid=225728403 
+- all_650_new_karolina.xlsx, Major_genre_wszystko.xlsx: https://drive.google.com/drive/folders/1XxhJRvzdYlSR-MCy-xN8uUam2OU0p1tn?usp=drive_link  - te pliki wymagają aktualizacji
 
 
 ## Kolejność prac:
@@ -47,6 +48,7 @@ Pamiętaj, żeby zawsze wygenerowae pliki porównywać z poprzednimi importami (
 5. Pamiętaj, żeby zawsze wygenerowane pliki porównywać z poprzednimi (folder Computations -> ELB i plik bn_chapters_marc..., aby odsiać duplikaty). Gdy z czasem będzie więcej tych plików, należy je zmergować w jeden DataFrame i porównać z właśnie wygenerowanym (jeszcze przed zapisaniem).
 6. Pamiętaj o aktualnych danych w polu 995, np. *df['995'] = '\\\\$aPBL 2013-2026: rozdziały książek'* - **musi zgadzać się rok z rokiem pobierania danych**.
 7. UWAGA: prawdopodobnie generuje nieprawidłowe pliki w formacie mrc. Przekonwertować mrk za pomocą konwertera Darka lub naprawić kod.
+8. UWAGA: w poprzednim imporcie podmieniłam link z http://libri.ucl.cas.cz/Record/ na https://literarybibliography.eu/id/pl., + w tabeli libri-relacje
 
 ###### libri_project_bn_books.py:
 1. Pamiętać, żeby w zmiennej **newest_relations** (wiersz 280.) podstawić ID nowego pliku (wygenerowanego po wykonaniu kodu libri_project_bn_chapters.py). Plik powinien być dostępny w folderze **Relacje rozdziałów i książek BN** (link u góry).
@@ -57,8 +59,10 @@ Pamiętaj, żeby zawsze wygenerowae pliki porównywać z poprzednimi importami (
 ###### BN_UPDATE.py:
 1. Zwrócić uwagę na komentarze na początku każdej sekcji kodu. Tam jest opisane, które zadania robi osoba ze strony PBL (Basia), a które osoba ze strony ELB (Marcin). W przyszłości ten podział może się zmienić
 2. Pliki niezbędne do wykonania kodu: all_650_new_karolina.xlsx, Major_genre_wszystko.xlsx. Dostępne są tutaj: https://drive.google.com/drive/folders/1XxhJRvzdYlSR-MCy-xN8uUam2OU0p1tn?usp=drive_link
-
-
+3. Legenda MARC LDR pole 7/8 
+- 'a' => 'Book chapter',
+- 'b' => 'Journal article',
+- 'm' => 'Book'
 
 ### Import do PBL (pbl.ibl.waw.pl):
 #### Repozytorium PBL-converter (tam szczegóły)

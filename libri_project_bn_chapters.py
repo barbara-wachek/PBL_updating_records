@@ -560,7 +560,7 @@ for column in books_df_simple.drop(columns='001'):
     books_df_simple[column] = books_df_simple.groupby('001')[column].transform(lambda x: ', '.join(x.drop_duplicates().astype(str)))
     
 books_df_simple = books_df_simple.drop_duplicates()
-books_df_simple['856'] = '42$uhttp://libri.ucl.cas.cz/Record/' + books_df_simple['001'] + '$ypart of: ' + books_df_simple['book title'] + ', ' + books_df_simple['place_house'] + ' ' + books_df_simple['year']
+books_df_simple['856'] = '42$uhttps://literarybibliography.eu/id/pl.' + books_df_simple['001'] + '$ypart of: ' + books_df_simple['book title'] + ', ' + books_df_simple['place_house'] + ' ' + books_df_simple['year']
 books_df_simple = books_df_simple[['001', '856']].rename(columns={'001':'book id'})
 
 relations_1 = pd.merge(chapters_and_books, books_df_simple, how='left', on= 'book id')[['chapter id', '856']].rename(columns={'chapter id':'id'})
@@ -615,7 +615,7 @@ dfs = [author, x245, x773]
 chapters_df_simple = reduce(lambda left,right: pd.merge(left,right,on='001', how = 'outer'), dfs).drop_duplicates().reset_index(drop=True)
 chapters_df_simple['author'] = chapters_df_simple['author'].apply(lambda x: '[no author]' if x == '' or pd.isnull(x) else x)
 
-chapters_df_simple['856'] = chapters_df_simple.apply(lambda x: '42$uhttp://libri.ucl.cas.cz/Record/' + x['001'] + '$yhas part: ' + x['author'] + ', ' + x['book title'] + ' ' + x['pages'] if pd.notnull(x['pages']) else '42$uhttp://libri.ucl.cas.cz/Record/' + x['001'] + '$yhas part: ' + x['author'] + ', ' + x['book title'], axis=1)
+chapters_df_simple['856'] = chapters_df_simple.apply(lambda x: '42$uhttps://literarybibliography.eu/id/pl.' + x['001'] + '$yhas part: ' + x['author'] + ', ' + x['book title'] + ' ' + x['pages'] if pd.notnull(x['pages']) else '42$uhttps://literarybibliography.eu/id/pl.' + x['001'] + '$yhas part: ' + x['author'] + ', ' + x['book title'], axis=1)
 chapters_df_simple = chapters_df_simple[['001', '856']].rename(columns={'001':'chapter id'})
 
 relations_2 = pd.merge(chapters_and_books, chapters_df_simple, how='left', on= 'chapter id')[['book id', '856']].rename(columns={'book id':'id'})

@@ -200,7 +200,7 @@ bn_articles_marc['246'] = bn_articles_marc['246'].apply(lambda x: x if pd.notnul
 bn_articles_marc['008'] = bn_articles_marc['008'].str.replace('\\', ' ')
 if bn_articles_marc['009'].dtype == np.float64:
         bn_articles_marc['009'] = bn_articles_marc['009'].astype(np.int64)
-bn_articles_marc['995'] = '\\\\$aPBL 2004-2023: czasopisma'
+bn_articles_marc['995'] = '\\\\$aPBL 2004-2026: czasopisma'
 bn_articles_marc = bn_articles_marc.drop_duplicates().reset_index(drop=True).dropna(how='all', axis=1)
 
 # linki do pełnych tekstów i relacje
@@ -298,6 +298,7 @@ print(f"Liczba nowych rekordów: {len(bn_articles_marc)}")
 #%% Zapisanie 
 
 bn_articles_marc.to_excel(f'data/bn_articles_marc_{year}-{month}-{day}.xlsx', index=False)
+
 
 df_to_mrc(bn_articles_marc, '❦', f'data/libri_marc_bn_articles_{year}-{month}-{day}.mrc', f'data/libri_bn_articles_errors_{year}-{month}-{day}.txt')
 mrc_to_mrk(f'data/libri_marc_bn_articles_{year}-{month}-{day}.mrc', f'data/libri_marc_bn_articles_{year}-{month}-{day}.mrk')
