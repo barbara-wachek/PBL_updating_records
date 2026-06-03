@@ -38,7 +38,7 @@ drive = GoogleDrive(gauth)
 #Jesli chcemy pobrać nowy plik z relacjami to najpierw wykonujemy kod od kroku 1. Jesli juz mam aktualny plik z relacjami w folderze Relacje rozdziałów i książek BN, to przechodzimy od razu do kroku 2
 
 #%% 2. pobranie pliku z relacjami z folderu: https://drive.google.com/drive/folders/1aATJM13muNYUB6CGhvuPMPtOzjT5XE8j  - Relacje rozdziałów i książek BN
-newest_relations = '1SiTF83NEhltUql5327oWjvPywn3jypoIF06Q-c044hI' #PODMIENIC ID Arkusza, który będzie z kroku 1 (linia 131-638); powinien zostać wrzucony po wykonaniu kodu do foleru 
+newest_relations = '1IsX9dQ3GVlGVpuGqZX6fSdm7Z2epOK1TNYFmHVyjT9c' #PODMIENIC ID Arkusza, który będzie z kroku 1 (linia 131-638); powinien zostać wrzucony po wykonaniu kodu do foleru 
 #Relacje rozdziałów i książek BN
 
 
@@ -50,7 +50,7 @@ chapters_id = tuple(chapters['id'].to_list())
 
 #%% 3. wydobycie poprawnych rozdziałów na podstawie pliku z relacjami – jeśli bazujemy na tej samej liście relacji, jeśli nie, trzeba wykonać krok nr 1
 
-path = r"C:\\Users\\barba\\Documents\\GitHub\\PBL_updating_records\\data\\2026-01-27"
+path = r"C:\\Users\\barba\\Documents\\GitHub\\PBL_updating_records\\data\\2026-06-01"
 files = [file for file in glob.glob(path + '\\*.mrk', recursive=True)]
 
 encoding = 'utf-8'
@@ -102,12 +102,13 @@ df['995'] = '\\\\$aPBL 2013-2026: rozdziały książek'
 
 #%% Porównanie z ostatnio wygenerowymi plikami bn_chapters_marc (aby odsiać duplikaty) folder ELB w Computations. Wziąć wszystkie poprzednie pliki (old1, old2 itd.) Przy kolejnym importcie uwzględnić włanie generowany plik. 
 
-# Wczytanie starych plików
+# Wczytanie starych plików (dodać plik wygenerowany w poprzednim imporcie)
 old1 = pd.read_excel(r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\old_imports\bn_chapters_marc_2021-07-01.xlsx")
 old2 = pd.read_excel(r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\old_imports\bn_chapters_marc_2024-12-06.xlsx")
+old3 = pd.read_excel(r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\old_imports\bn_chapters_marc_2026-01-30.xlsx")
 
 # Tworzymy zbiór ID starych rekordów
-old_ids = set(old1['001'].dropna().tolist()) | set(old2['001'].dropna().tolist())
+old_ids = set(old1['001'].dropna().tolist()) | set(old2['001'].dropna().tolist()) | set(old3['001'].dropna().tolist())
 
 # Tworzymy zbiór ID nowych rekordów
 new_ids = set(df['001'].dropna().tolist())
@@ -156,6 +157,10 @@ if errors:
 
 
 
+
+
+
+
 # 1. proces przygotowania rozdziałów i książek z relacjami - do powtórzenia za jakiś czas
 #%% deskryptory do harvestowania BN
 file_list = drive.ListFile({'q': f"'{PBL_folder}' in parents and trashed=false"}).GetList() 
@@ -191,7 +196,8 @@ deskryptory_08_2023 = set(deskryptory_08_2023.loc[deskryptory_08_2023['ok'] == '
 
 years = range(1989,2026)
    
-path = r"C:\\Users\\barba\\Documents\\GitHub\\PBL_updating_records\\data\\2026-01-27"
+#path = r"C:\\Users\\barba\\Documents\\GitHub\\PBL_updating_records\\data\\2026-01-27"
+path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-06-01"
 files = [file for file in glob.glob(path + '\\*.mrk', recursive=True)]
 
 encoding = 'utf-8'
@@ -290,7 +296,7 @@ df = df[~df['001'].isin(chapters_with_missing_books)]
 
 years = range(1989,2026)
    
-path = r"C:\\Users\\barba\\Documents\\GitHub\\PBL_updating_records\\data\\2026-01-27"
+path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-06-01"
 files = [file for file in glob.glob(path + '\\*.mrk', recursive=True)]
 
 encoding = 'utf-8'
@@ -384,7 +390,7 @@ chapters_and_books = pd.concat([chapters_and_books.drop(columns='book title'), c
 
 book_ids = set(chapters_and_books['book id'].to_list())
 
-path = r"C:\\Users\\barba\\Documents\\GitHub\\PBL_updating_records\\data\\2026-01-27"
+path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-06-01"
 files = [file for file in glob.glob(path + '\\*.mrk', recursive=True)]
 
 encoding = 'utf-8'

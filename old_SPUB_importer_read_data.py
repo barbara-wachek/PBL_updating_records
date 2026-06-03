@@ -8,21 +8,37 @@ from collections import Counter
 
 #def
 
+# def read_MARC21(path_mrk, encoding='UTF-8'):
+#     path_mrc = path_mrk.replace('.mrk', '.mrc')
+#     if not os.path.isfile(path_mrk):
+#         mrc_to_mrk(path_mrc, path_mrk)
+#     elif not os.path.isfile(path_mrc):
+#         sys.exit('No MARC21 file in the directory!') 
+#     marc_list = io.open(path_mrk, 'rt', encoding = encoding).read().splitlines()
+#     mrk_list = []
+#     for row in marc_list:
+#         if row.startswith('=LDR'):
+#             mrk_list.append([row])
+#         else:
+#             if row:
+#                 mrk_list[-1].append(row)
+#     return mrk_list
+
+
 def read_MARC21(path_mrk, encoding='UTF-8'):
-    path_mrc = path_mrk.replace('.mrk', '.mrc')
-    if not os.path.isfile(path_mrk):
-        mrc_to_mrk(path_mrc, path_mrk)
-    elif not os.path.isfile(path_mrc):
-        sys.exit('No MARC21 file in the directory!') 
-    marc_list = io.open(path_mrk, 'rt', encoding = encoding).read().splitlines()
+    marc_list = io.open(path_mrk, 'rt', encoding=encoding).read().splitlines()
+
     mrk_list = []
     for row in marc_list:
         if row.startswith('=LDR'):
             mrk_list.append([row])
-        else:
-            if row:
-                mrk_list[-1].append(row)
+        elif row:
+            mrk_list[-1].append(row)
+
     return mrk_list
+
+
+
 
 def get_list_of_people(marc21_list, fields_tuple, regex_replace, top=0):
     list_of_people = []           

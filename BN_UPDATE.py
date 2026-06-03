@@ -12,9 +12,9 @@ import re
 
 #%% leader rozdzial artykul- [korekta Basia] / do zrobienia w kolejnym imporcie/ poprawić sciezki / 
 #Zmiana kodu, aby pokrywał on rowniez przypadki, gdy w LDR nie jest 'a' na 7 pozycji, ale cos innego, co rowniez nie jest artykulem ('b')
-input_file = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\libri_marc_bn_articles_2026-01-29.mrc"  
-output_mrc = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-01-29 (do wysłania)\libri_marc_bn_articles_2026-01-29_preprocessing.mrc" 
-output_mrk = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-01-29 (do wysłania)\libri_marc_bn_articles_2026-01-29_preprocessing.mrk" 
+input_file = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\libri_marc_bn_articles_2026-06-01.mrc"  
+output_mrc = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-06-01 (do wysłania)\libri_marc_bn_articles_2026-06-01_preprocessing.mrc" 
+output_mrk = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-06-01 (do wysłania)\libri_marc_bn_articles_2026-06-01_preprocessing.mrk" 
 
 # input_file = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/2025-03-25 (do poprawy LDR)/pl_bn_articles-2025-02-11(do poprawy LDR).mrc"  # plik MARC z błędnym LDR
 # output_file = "C:/Users/PBL_Basia/Documents/My scripts/PBL_updating_records/data/2025-03-25 (do poprawy LDR)/pl_bn_articles-2025-02-11_(poprawione_2025-03-25).mrc"
@@ -48,22 +48,27 @@ output_mrk = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-01
 
 
 
+with open(input_file, "rb") as fh_in, \
+     open(output_mrc, "wb") as fh_out_mrc, \
+     open(output_mrk, "w", encoding="utf-8") as fh_out_mrk:
 
-
-with open(input_file, 'rb') as fh_in, open(output_file, 'wb') as fh_out:
     reader = MARCReader(fh_in)
-    writer = MARCWriter(fh_out)
-    
+    writer_mrc = MARCWriter(fh_out_mrc)
+    writer_mrk = TextWriter(fh_out_mrk)
+
     for record in reader:
-        # # Sprawdź, czy w 7 pozycji leadera (indeks 7) nie ma 'b' (Artykuł)
-        # if record.leader[7] != 'b':
-        # Nadpisujemy tylko siódmą pozycję w leaderze
-        record.leader = record.leader[:7] + 'b' + record.leader[8:]
-        
-        # Zapisujemy rekord z poprawionym leaderem
-        writer.write(record)
-    
-    writer.close()
+        # LDR/07 = b (artykuł)
+        record.leader = record.leader[:7] + "b" + record.leader[8:]
+
+        writer_mrc.write(record)
+        writer_mrk.write(record)
+
+    writer_mrc.close()
+    writer_mrk.close()
+
+print("Gotowe.")
+
+
 
 #%% [To Marcin]
 
@@ -412,34 +417,82 @@ merged['desk_650_normalized'] = merged['desk_650'].apply(lambda x: clean_text(ex
 
 
 
+#Dla każdego pliku mrc z danymi z BN (3 pliki) przeprowadzić poniższe procesy/ Pamiętać o aktualizacji scieżek plików! Mają to być ostatnio pobrane rekordy!
 
-#Dla każdego pliku mrc z danymi z BN (3 pliki) przeprowadzić poniższe procesy/ Pamiętać o aktualizacji sciezek plików! Mają to być ostatnio pobrane rekordy!
-
-articles_path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-01-29 (do wysłania)\libri_marc_bn_articles_2026-01-29_preprocessing.mrc" #tutaj dać plik który został naprawiony w pierwszym kroku (LDR)
-books_path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\libri_marc_bn_books_2026-01-30.mrc"
-chapters_path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\libri_marc_bn_chapters_2026-01-30.mrc"
+articles_path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-06-01 (do wysłania)\libri_marc_bn_articles_2026-06-01_preprocessing.mrc" #tutaj dać plik który został naprawiony w pierwszym kroku (LDR)
+books_path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\libri_marc_bn_books_2026-06-03.mrc"
+chapters_path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\libri_marc_bn_chapters_2026-06-01.mrc"
     
-
-
 
 
 # Pierwszy proces: ELB-g / podstawić odpowiedni plik w zmiennej input_file i zmień nazwę pliku w output (uwzględnij articles/books/chapters)
 
+#Rozdziały
 process_marc(
     input_file= chapters_path,
-    output_mrk="./data/wynikowy_elb_chapters_g.mrk",
-    output_mrc="./data/wynikowy_elb_chapters_g.mrc",
+    output_mrk="./data/2026-06-01 (do wysłania)/wynikowy_elb_chapters_g.mrk",
+    output_mrc="./data/2026-06-01 (do wysłania)/wynikowy_elb_chapters_g.mrc",
     merge_column="KPto650",
     indicator_value="ELB-g"
 )
 
 # Drugi proces: ELB-n (bazując na wynikowym pliku z ELB-g) / podstawić odpowiedni plik w zmiennej input_file (plik wygenerowany wyzej)
 process_marc(
-    input_file="./data/wynikowy_elb_chapters_g.mrc", 
-    output_mrk="./data/wynikowy_elb_chapters_n_g.mrk",
-    output_mrc="./data/wynikowy_elb_chapters_n_g.mrc",
+    input_file="./data/2026-06-01 (do wysłania)/wynikowy_elb_chapters_g.mrc", 
+    output_mrk="./data/2026-06-01 (do wysłania)/wynikowy_elb_chapters_n_g.mrk",
+    output_mrc="./data/2026-06-01 (do wysłania)/wynikowy_elb_chapters_n_g.mrc",
     merge_column="nationalityto650",
     indicator_value="ELB-n")
+
+
+#I tak samo dla kazdego zbioru: 
+
+
+#Artykuły
+process_marc(
+    input_file= articles_path,
+    output_mrk="./data/2026-06-01 (do wysłania)/wynikowy_elb_articles_g.mrk",
+    output_mrc="./data/2026-06-01 (do wysłania)/wynikowy_elb_articles_g.mrc",
+    merge_column="KPto650",
+    indicator_value="ELB-g"
+)
+
+# Drugi proces: ELB-n (bazując na wynikowym pliku z ELB-g) / podstawić odpowiedni plik w zmiennej input_file (plik wygenerowany wyzej)
+process_marc(
+    input_file="./data/2026-06-01 (do wysłania)/wynikowy_elb_articles_g.mrc", 
+    output_mrk="./data/2026-06-01 (do wysłania)/wynikowy_elb_articles_n_g.mrk",
+    output_mrc="./data/2026-06-01 (do wysłania)/wynikowy_elb_articles_n_g.mrc",
+    merge_column="nationalityto650",
+    indicator_value="ELB-n")
+
+
+
+
+
+
+#Książki
+
+process_marc(
+    input_file= books_path,
+    output_mrk="./data/2026-06-01 (do wysłania)/wynikowy_elb_books_g.mrk",
+    output_mrc="./data/2026-06-01 (do wysłania)/wynikowy_elb_books_g.mrc",
+    merge_column="KPto650",
+    indicator_value="ELB-g"
+)
+
+# Drugi proces: ELB-n (bazując na wynikowym pliku z ELB-g) / podstawić odpowiedni plik w zmiennej input_file (plik wygenerowany wyzej)
+process_marc(
+    input_file="./data/2026-06-01 (do wysłania)/wynikowy_elb_books_g.mrc", 
+    output_mrk="./data/2026-06-01 (do wysłania)/wynikowy_elb_books_n_g.mrk",
+    output_mrc="./data/2026-06-01 (do wysłania)/wynikowy_elb_books_n_g.mrc",
+    merge_column="nationalityto650",
+    indicator_value="ELB-n")
+
+
+
+
+
+
 
 
 

@@ -206,7 +206,7 @@ starting_year = 2013
 ending_year = 2026
 
 #%% path to the newest BN dump
-path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-01-27"
+path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-06-01"
 
 #%% deskryptory BN do wydobycia rekordów
 bn_deskryptory1 = gsheet_to_df('1b_DWfaMsi_10xKR8fg-0Qpzvm91p6gx3lwjgSy0zI1Q', 'deskryptory_do_filtrowania')
@@ -277,7 +277,7 @@ dydaktyka_655 = list(set([re.sub('\$y.*', '', e[4:]).replace('$2DBN', '') for su
 bn_relations = gsheet_to_df('1WPhir3CwlYre7pw4e76rEnJq5DPvVZs3_828c_Mqh9c', 'relacje_rev_book').rename(columns={'id':'001'})
 bn_relations = bn_relations[bn_relations['typ'] == 'book'].rename(columns={'id':'001'})
 
-newest_relations = '1SiTF83NEhltUql5327oWjvPywn3jypoIF06Q-c044hI' #TU PODMIENIĆ
+newest_relations = '1IsX9dQ3GVlGVpuGqZX6fSdm7Z2epOK1TNYFmHVyjT9c' #TU PODMIENIĆ
 
 bn_books_chapters = gsheet_to_df(newest_relations, 'relations')
 bn_books_chapters = bn_books_chapters[bn_books_chapters['type'] == 'book'].rename(columns={'id':'001'})
@@ -478,8 +478,15 @@ bn_books_marc_old2 = pd.read_excel(
     sheet_name='Sheet1'
 )
 
+bn_books_marc_old3 = pd.read_excel(
+    r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\old_imports\bn_books_marc_2026-01-30.xlsx",
+    sheet_name='Sheet1'
+)
+
+
+
 # Stworzenie zestawu ID ze starych plików
-old_ids = set(bn_books_marc_old1['001'].dropna().tolist()) | set(bn_books_marc_old2['001'].dropna().tolist())
+old_ids = set(bn_books_marc_old1['001'].dropna().tolist()) | set(bn_books_marc_old2['001'].dropna().tolist()) | set(bn_books_marc_old3['001'].dropna().tolist())
 
 # Zestaw ID z nowego df
 new_ids = set(bn_books_marc_total['001'].dropna().tolist())

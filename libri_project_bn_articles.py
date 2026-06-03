@@ -143,12 +143,14 @@ deskryptory_08_2023 = set(deskryptory_08_2023.loc[deskryptory_08_2023['ok'] == '
 
 #%% BN data extraction
 
-path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-01-27"
+path = r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\2026-06-01"
 
 files = [file for file in glob.glob(path + '\\*.mrk', recursive=True)]
 years = range(2004, 2026)
 encoding = 'utf-8'
 new_list = []
+
+
 for file_path in tqdm(files):
     mrk_list = read_MARC21(file_path)
                 
@@ -270,14 +272,16 @@ multiple_poems = multiple_poems.drop(columns='idx')
 
 bn_articles_marc = pd.concat([bn_articles_marc, multiple_poems]).reset_index(drop=True).sort_values('001')
 
-#%%Porównanie z ostatnio wygenerowymi plikami bn_articles_marc z 2021 i 2024 roku (aby odsiać duplikaty) folder ELB w Computations (uwzględnić wszystkie importy od 2021)
+#%%Porównanie z ostatnio wygenerowymi plikami bn_articles_marc z 2021, 2024 i 2026 roku (aby odsiać duplikaty) folder ELB w Computations (uwzględnić wszystkie importy od 2021)
 #bn_articles_marc_old = pd.read_excel(r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\bn_articles_marc.xlsx", sheet_name='Sheet1')
 
 bn_articles_marc_old1 = pd.read_excel(r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\old_imports\bn_articles_marc_2021-07-01.xlsx", sheet_name='Sheet1')
 bn_articles_marc_old2 = pd.read_excel(r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\old_imports\bn_articles_marc_2024-12-06.xlsx", sheet_name='Sheet1')
+bn_articles_marc_old3 = pd.read_excel(r"C:\Users\barba\Documents\GitHub\PBL_updating_records\data\old_imports\bn_articles_marc_2026-01-29.xlsx", sheet_name='Sheet1')
+
 
 #Stworzenie list z ID z obu df: starych i nowego:
-old_ids = set(bn_articles_marc_old1['001'].dropna().tolist()) | set(bn_articles_marc_old2['001'].dropna().tolist())
+old_ids = set(bn_articles_marc_old1['001'].dropna().tolist()) | set(bn_articles_marc_old2['001'].dropna().tolist()) | set(bn_articles_marc_old3['001'].dropna().tolist())
     
 # Tworzymy zestaw ID nowych rekordów
 new_ids = set(bn_articles_marc['001'].dropna().tolist())

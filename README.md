@@ -25,7 +25,13 @@ https://data.bn.org.pl/databases
 Tools (menu na pasku u góry) → MARC Processing Tools → MARCSplit → podzielić na paczki po 200k
 #### Konwersja plików .mrc na .mrk - kod marc_to_table.py (tylko pierwsza funkcja)
 #### Pliki w formacie .mrk (pobrane z BN) wrzucamy do folderu \data i do nowego folderu z nazwą w formacie YYYY-MM-DD
-#### W folderze data tworzymy lub uzupełniamy folder old_imports - będą tu potrzebne pliki poprzednio wygenerowane, które sa dostępne w folderze Computations/ELB/Aktualizacja danych (patrz Ważne foldery/pliki)
+#### W folderze data tworzymy lub uzupełniamy folder old_imports - będą tu potrzebne pliki poprzednio wygenerowane, które sa dostępne w folderze Computations/ELB/Aktualizacja danych (patrz Ważne foldery/pliki) lub są zapisane lokalnie w repo. Są w formacie xlsx 
+
+### Nowe podejście do wcześniejszego filtrowania przetworzonych wcześniej danych z BN - do przemyślenia 
+Aby uniknąć przetwarzania całego zbioru BN (łącznie z danymi, które były przetwarzane w poprzednich importach) stworzony został kod filter_processed_records.py 
+Służy on do odrzucenia z plików .mrk rekordów, które były dodane przed datą ostatniego importu. Skrypt sprawdza również modyfikacje rekordów. Jeśli jakis rekord został zmodyfikowany po dacie ostatniego importu - uwzględnia go. Czyli bierzemy nowe rekordy oraz rekordy zmodyfikowane od ostatniego importu. Wyfiltrowane pliki .mrk zapisujemy w folderze data/filtered_records_[data pobrania]
+Kod ten uruchamiamy, zanim przejdziemy do poniższych skryptów. **Póki co podejście to nie jest do końca wdrożone. Nadal przetwarzany jest cały zbiór rekordów.** 
+
 
 #### Uruchamiamy skrypty w następującej kolejności:
 1. chapters - libri_project_bn_chapters.py
@@ -41,7 +47,7 @@ Pamiętaj, żeby zawsze wygenerowae pliki porównywać z poprzednimi importami (
 ### Instrukcje szczegółowe dot. skryptów:
 
 ###### libri_project_bn_chapters.py:
-1. Po wykonaniu wierszy od początku do wiersza 35., wykonać krok 1. (jest niżej, pod drugim i trzecim, wiersz 132.), aby pobrać aktualny plik z relacjami (folder: Relacje rozdziałów i książek BN).
+1. Po wykonaniu wierszy od początku do wiersza 35., wykonać krok 1. (jest niżej, pod drugim i trzecim, wiersz 132.), aby pobrać aktualny plik z relacjami (folder: Relacje rozdziałów i książek BN). Ważne: do update'u relacji książki-rozdziały użyć pełnego zbioru plików .mrk, które są w folderze /data/[data pobrania] nie zaś zbioru z folderu data/filtered_records_[data pobrania]
 2. Podstawić ID nowego pliku z relacjami, który powinien po wykonaniu kroku pierwszego pojawić się w folderze **Relacje rozdziałów i książek BN** – linia 41 kodu (początek kroku 2.)
 3. Wykonać kroki 2 i 3
 4. W razie potrzeby podmienić ścieżki (zmienna path) i zaktualizować przedział lat (linia 186: years range(1989, XXXX))
@@ -63,6 +69,11 @@ Pamiętaj, żeby zawsze wygenerowae pliki porównywać z poprzednimi importami (
 - 'a' => 'Book chapter',
 - 'b' => 'Journal article',
 - 'm' => 'Book'
+
+
+### Dostarczenie plików do ELB
+- pliki wynikowe (np. wynikowy_elb_articles_g) dostarczyć do ELB. Pliki xlsx, które powstały przed preprocessingiem można przechowywać lokalnie, w celu późniejszego filtrowania (odrzucania uwzględnionych już rekordów)
+- pliki do ELB wrzucamy tutaj: https://drive.google.com/drive/folders/1r5JEo0XgSJokQaXZ-rmXl8od7JA_KYca (tworzymy folder z odpowiednią datą)
 
 ### Import do PBL (pbl.ibl.waw.pl):
 #### Repozytorium PBL-converter (tam szczegóły)
